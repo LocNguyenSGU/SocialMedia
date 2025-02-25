@@ -9,15 +9,18 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "post")
+@Table(name = "comment")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Post {
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_id")
+    @Column(name = "comment_id")
+    private int commentId;
+
+    @Column(name = "post_id", nullable = false)
     private int postId;
 
     @Column(name = "user_id", nullable = false)
@@ -26,26 +29,17 @@ public class Post {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "number_emotion")
     private int numberEmotion;
 
-    @Column(name = "number_comment")
-    private int numberComment;
+    @Column(name = "number_comment_child")
+    private int numberCommentChild;
 
-    @Column(name = "number_share")
-    private int numberShare;
-
-    @Column(name = "visibility")
-    private String visibility;
-
-    @Column(name = "type_post")
-    private String typePost;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {

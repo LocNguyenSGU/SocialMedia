@@ -1,51 +1,39 @@
 package com.example.social.media.entity;
 
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "post")
+@Table(name = "list_friend")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Post {
+public class ListFriend {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_id")
-    private int postId;
+    @Column(name = "id")
+    private int listFriendId;
 
     @Column(name = "user_id", nullable = false)
     private int userId;
 
-    @Column(name = "content")
-    private String content;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "friend_id", nullable = false)
+    private int friendId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "number_emotion")
-    private int numberEmotion;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
-    @Column(name = "number_comment")
-    private int numberComment;
-
-    @Column(name = "number_share")
-    private int numberShare;
-
-    @Column(name = "visibility")
-    private String visibility;
-
-    @Column(name = "type_post")
-    private String typePost;
+    @Column(name = "status")
+    private String status;
 
     @PrePersist
     protected void onCreate() {
