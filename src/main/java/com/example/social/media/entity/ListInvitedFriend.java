@@ -20,11 +20,14 @@ public class ListInvitedFriend {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "user_id", nullable = false)
-    private int userId;
 
-    @Column(name = "received_id", nullable = false)
-    private int receivedId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User userId;
+
+    @ManyToOne
+    @JoinColumn(name = "received_id", nullable = false)
+    private User receivedId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

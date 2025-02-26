@@ -19,8 +19,9 @@ public class PostMedia {
     @Column(name = "post_media_id")
     private int postMediaId;
 
-    @Column(name = "post_id", nullable = false)
-    private int postId;
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post postId;
 
     @Column(name = "media_url", nullable = false)
     private String mediaUrl;
@@ -31,8 +32,9 @@ public class PostMedia {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "order")
+    @Column(name = "media_order")
     private int order;
+
 
     @PrePersist
     protected void onCreate() {

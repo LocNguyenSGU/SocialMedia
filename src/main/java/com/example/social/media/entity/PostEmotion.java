@@ -19,11 +19,13 @@ public class PostEmotion {
     @Column(name = "post_emotion_id")
     private int postEmotionId;
 
-    @Column(name = "post_id", nullable = false)
-    private int postId;
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post postId;
 
-    @Column(name = "user_id", nullable = false)
-    private int userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User userId;
 
     @Column(name = "emotion", nullable = false)
     private String emotion;

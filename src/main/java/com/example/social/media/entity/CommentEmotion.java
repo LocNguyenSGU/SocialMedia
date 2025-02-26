@@ -18,11 +18,13 @@ public class CommentEmotion {
     @Column(name = "comment_emotion_id")
     private int commentEmotionId;
 
-    @Column(name = "comment_id", nullable = false)
-    private int commentId;
+    @ManyToOne
+    @JoinColumn(name = "comment_id", nullable = false)
+    private Comment commentId;
 
-    @Column(name = "user_id", nullable = false)
-    private int userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User userId;
 
     @Column(name = "emotion", nullable = false)
     private String emotion;

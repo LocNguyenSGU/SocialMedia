@@ -24,10 +24,10 @@ public class ConversationMember {
     @Column(name = "id")
     private int conversationMemberId;
 
-    @Column(name = "conversation_id", nullable = false)
+    @JoinColumn(name = "conversation_id")
     private int conversationId;
 
-    @Column(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private int userId;
 
     @Column(name = "joined_at", nullable = false)

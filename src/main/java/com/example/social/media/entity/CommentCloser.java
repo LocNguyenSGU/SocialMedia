@@ -18,11 +18,13 @@ public class CommentCloser {
     @Column(name = "comment_closer_id")
     private int idCommentCloser;
 
-    @Column(name = "ancestor_id", nullable = false)
-    private int ancestorId;
+    @ManyToOne
+    @JoinColumn(name = "ancestor_id", nullable = false)
+    private Comment ancestorId;
 
-    @Column(name = "descendant_id", nullable = false)
-    private int descendantId;
+    @ManyToOne
+    @JoinColumn(name = "descendant_id", nullable = false)
+    private Comment descendantId;
 
     @Column(name = "depth", nullable = false)
     private int depth;

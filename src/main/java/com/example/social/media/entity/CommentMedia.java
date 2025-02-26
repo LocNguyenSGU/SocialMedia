@@ -19,8 +19,9 @@ public class CommentMedia {
     @Column(name = "id_comment_media")
     private int idCommentMedia;
 
-    @Column(name = "comment_id", nullable = false)
-    private int commentId;
+    @ManyToOne
+    @JoinColumn(name = "comment_id", nullable = false)
+    private Comment commentId;
 
     @Column(name = "media_url", nullable = false)
     private String mediaUrl;

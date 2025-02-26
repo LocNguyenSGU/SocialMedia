@@ -20,11 +20,13 @@ public class Message {
     @Column(name = "message_id")
     private int messageId;
 
-    @Column(name = "conversation_id", nullable = false)
-    private int conversationId;
+    @ManyToOne
+    @JoinColumn(name = "conversation_id")
+    private Conversation conversationId;
 
-    @Column(name = "sender_id", nullable = false)
-    private int senderId;
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private User senderId;
 
     @Column(name = "type")
     private String type;

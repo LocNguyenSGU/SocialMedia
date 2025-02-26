@@ -19,15 +19,19 @@ public class MessageStatus {
     @Column(name = "message_status_id")
     private int messageStatusId;
 
-    @Column(name = "message_id", nullable = false)
-    private int messageId;
+    @ManyToOne
+    @JoinColumn(name = "message_id")
+    private Message messageId;
 
-    @Column(name = "receiver_id", nullable = false)
-    private int receiverId;
+    @ManyToOne
+    @JoinColumn(name = "receiver_id")
+    private User receiverId;
 
     @Column(name = "status", nullable = false)
     private String status;
 
     @Column(name = "read_at")
     private LocalDateTime readAt;
+
+
 }

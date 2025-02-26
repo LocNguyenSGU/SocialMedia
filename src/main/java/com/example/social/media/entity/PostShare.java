@@ -19,11 +19,13 @@ public class PostShare {
     @Column(name = "post_share_id")
     private int postShareId;
 
-    @Column(name = "user_id", nullable = false)
-    private int userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User userId;
 
-    @Column(name = "post_id", nullable = false)
-    private int postId;
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post postId;
 
     @Column(name = "shared_at", nullable = false)
     private LocalDateTime sharedAt;

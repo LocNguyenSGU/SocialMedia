@@ -20,11 +20,13 @@ public class ListFriend {
     @Column(name = "id")
     private int listFriendId;
 
-    @Column(name = "user_id", nullable = false)
-    private int userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User userId;
 
-    @Column(name = "friend_id", nullable = false)
-    private int friendId;
+    @ManyToOne
+    @JoinColumn(name = "friend_id")
+    private User friendId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -17,14 +17,16 @@ public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "noti_id")
-    private int notiId;
+    @Column(name = "notice_id")
+    private int noticeId;
 
-    @Column(name = "receiver_id", nullable = false)
-    private int receiverId;
+    @ManyToOne
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiverId;
 
-    @Column(name = "sender_id", nullable = false)
-    private int senderId;
+    @ManyToOne
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User senderId;
 
     @Column(name = "type", nullable = false)
     private String type;
