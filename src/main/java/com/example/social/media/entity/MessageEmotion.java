@@ -1,26 +1,26 @@
 package com.example.social.media.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comment_emotion")
+@Table(name = "message_emotion")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentEmotion {
+public class MessageEmotion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_emotion_id")
-    private int commentEmotionId;
+    @Column(name = "message_emotion_id")
+    private int messageEmotionId;
 
     @ManyToOne
-    @JoinColumn(name = "comment_id", nullable = false)
-    private Comment comment;
+    @JoinColumn(name = "message_id", nullable = false)
+    private Message message;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

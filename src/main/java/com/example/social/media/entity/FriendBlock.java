@@ -1,33 +1,33 @@
 package com.example.social.media.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comment_emotion")
+@Table(name = "friend_block")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentEmotion {
+public class FriendBlock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_emotion_id")
-    private int commentEmotionId;
-
-    @ManyToOne
-    @JoinColumn(name = "comment_id", nullable = false)
-    private Comment comment;
+    @Column(name = "block_id")
+    private int blockId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user; // Người thực hiện chặn
 
-    @Column(name = "emotion", nullable = false)
-    private String emotion;
+    @ManyToOne
+    @JoinColumn(name = "blocked_user_id", nullable = false)
+    private User blockedUser; // Người bị chặn
+
+    @Column(name = "reason")
+    private String reason; // Lý do chặn (tùy chọn lý do bên front end hoặc nhập text tuỳ)
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

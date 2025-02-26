@@ -1,5 +1,6 @@
 package com.example.social.media.entity;
 
+import com.example.social.media.enumm.MediaTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,16 +22,20 @@ public class CommentMedia {
 
     @ManyToOne
     @JoinColumn(name = "comment_id", nullable = false)
-    private Comment commentId;
+    private Comment comment;
 
     @Column(name = "media_url", nullable = false)
     private String mediaUrl;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "media_type", nullable = false)
-    private String mediaType;
+    private MediaTypeEnum mediaType;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "media_order")
+    private int order;
 
     @PrePersist
     protected void onCreate() {

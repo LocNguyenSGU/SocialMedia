@@ -1,12 +1,15 @@
 package com.example.social.media.entity;
 
 
+import com.example.social.media.enumm.PostTypeEnum;
+import com.example.social.media.enumm.PostVisibilityEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -14,16 +17,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Post {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
     private int postId;
 
-    @Column(name = "user_id", nullable = false)
-    private int userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "content")
+    @Column(name = "content", columnDefinition = "TEXT")
+    @Lob
     private String content;
 
     @Column(name = "updated_at")
@@ -41,11 +45,24 @@ public class Post {
     @Column(name = "number_share")
     private int numberShare;
 
-    @Column(name = "visibility")
-    private String visibility;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visibility", nullable = false)
+    private PostVisibilityEnum visibility;
 
-    @Column(name = "type_post")
-    private String typePost;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_post", nullable = false)
+    private PostTypeEnum typePost;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name="post_id")
+    private List<PostMedia> postMediaList;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name="post_id")
+    private List<PostEmotion> postEmotionList;
 
     @PrePersist
     protected void onCreate() {

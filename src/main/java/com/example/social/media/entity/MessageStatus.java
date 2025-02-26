@@ -1,5 +1,6 @@
 package com.example.social.media.entity;
 
+import com.example.social.media.enumm.MessageStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,17 +22,16 @@ public class MessageStatus {
 
     @ManyToOne
     @JoinColumn(name = "message_id")
-    private Message messageId;
+    private Message message;
 
     @ManyToOne
     @JoinColumn(name = "receiver_id")
-    private User receiverId;
+    private User receiver;
 
-    @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "message_status", nullable = false)
+    private MessageStatusEnum messageStatus;
 
     @Column(name = "read_at")
     private LocalDateTime readAt;
-
-
 }

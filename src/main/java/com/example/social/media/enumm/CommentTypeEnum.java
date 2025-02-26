@@ -1,6 +1,6 @@
 package com.example.social.media.enumm;
 
-public enum PostTypeEnum {
+public enum CommentTypeEnum {
     TEXT,
     NON_TEXT,
     MIX

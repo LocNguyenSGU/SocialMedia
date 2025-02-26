@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -19,8 +20,8 @@ public class User {
     @Column(name = "user_id")
     private int userId;
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
+    @Column(name = "user_name", nullable = false, unique = true)
+    private String userName;
 
     @Column(name = "first_name")
     private String firstName;
@@ -54,6 +55,9 @@ public class User {
 
     @Column(name = "url_background")
     private String urlBackground;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ConversationMember> conversationMemberList;
 
     // Lifecycle callbacks
     @PrePersist

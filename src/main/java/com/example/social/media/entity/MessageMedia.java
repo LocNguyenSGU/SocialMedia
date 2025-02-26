@@ -1,5 +1,7 @@
 package com.example.social.media.entity;
 
+import com.example.social.media.enumm.MediaTypeEnum;
+import com.example.social.media.enumm.PostTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,14 +21,16 @@ public class MessageMedia {
     @Column(name = "message_media_id")
     private int messageMediaId;
 
-    @Column(name = "message_id", nullable = false)
-    private int messageId;
+    @ManyToOne
+    @JoinColumn(name = "message_id", nullable = false)
+    private Message message;
 
     @Column(name = "media_url", nullable = false)
     private String mediaUrl;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "media_type", nullable = false)
-    private String mediaType;
+    private MediaTypeEnum mediaType;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

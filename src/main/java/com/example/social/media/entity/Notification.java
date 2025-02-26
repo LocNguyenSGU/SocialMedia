@@ -22,11 +22,11 @@ public class Notification {
 
     @ManyToOne
     @JoinColumn(name = "receiver_id", nullable = false)
-    private User receiverId;
+    private User receiver;
 
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = false)
-    private User senderId;
+    private User sender;
 
     @Column(name = "type", nullable = false)
     private String type;

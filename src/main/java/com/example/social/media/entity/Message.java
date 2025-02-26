@@ -1,12 +1,15 @@
 package com.example.social.media.entity;
 
 
+import com.example.social.media.enumm.CommentTypeEnum;
+import com.example.social.media.enumm.MediaTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "message")
@@ -26,12 +29,14 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "sender_id")
-    private User senderId;
+    private User sender;
 
-    @Column(name = "type")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_message", nullable = false)
+    private MediaTypeEnum typeMessage;
 
-    @Column(name = "content")
+    @Column(name = "content", columnDefinition = "TEXT")
+    @Lob
     private String content;
 
     @Column(name = "update_at")
@@ -42,6 +47,18 @@ public class Message {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name="message_id")
+    private List<MessageMedia> messageMediaList;
+
+    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name="message_id")
+    private List<MessageStatus> messageStatusList;
+
+    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name="message_id")
+    private List<MessageEmotion> messageEmotionList;
 
     @PrePersist
     protected void onCreate() {

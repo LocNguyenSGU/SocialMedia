@@ -21,14 +21,16 @@ public class ConversationMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "conversation_member_id")
     private int conversationMemberId;
 
+    @ManyToOne
     @JoinColumn(name = "conversation_id")
-    private int conversationId;
+    private Conversation conversation;
 
-    @JoinColumn(name = "user_id")
-    private int userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt;
