@@ -1,7 +1,13 @@
 package com.example.social.media.payload.common;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class DataResponse {
     private int statusCode = 200;
     private Object data;
