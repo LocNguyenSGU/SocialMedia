@@ -1,6 +1,5 @@
 package com.example.social.media.payload.response.CommentDTO;
 
-import com.example.social.media.enumm.CommentTypeEnum;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
