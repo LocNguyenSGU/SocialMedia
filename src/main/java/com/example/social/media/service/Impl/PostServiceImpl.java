@@ -3,6 +3,8 @@ package com.example.social.media.service.Impl;
 import com.example.social.media.entity.Comment;
 import com.example.social.media.entity.Post;
 import com.example.social.media.entity.User;
+import com.example.social.media.exception.AppException;
+import com.example.social.media.exception.ErrorCode;
 import com.example.social.media.mapper.PostMapper;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
@@ -34,7 +36,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostResponseDTO createPost(PostCreateRequest postCreateRequest) {
         User user = userRepository.findById(postCreateRequest.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + postCreateRequest.getUserId()));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+//        new RuntimeException("User not found with ID: " + postCreateRequest.getUserId()))
 
         Post post = postMapper.toPost(postCreateRequest);
         post.setUser(user);
