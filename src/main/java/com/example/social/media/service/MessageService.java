@@ -1,5 +1,7 @@
 package com.example.social.media.service;
 
+import com.example.social.media.entity.Message;
+import com.example.social.media.payload.request.MessageDTO.SendMessageRequest;
 import com.example.social.media.payload.response.Conversation.ConversationDTO;
 import com.example.social.media.payload.response.MessageDTO.MessageDTO;
 import org.springframework.stereotype.Service;
@@ -13,4 +15,5 @@ public interface MessageService {
     public ConversationDTO getMessageByIdUser(int idUser, int conversationId, LocalDateTime lastMessageTime, int pageSize);
     // hàm lấy danh sách conversation của 1 user bằng id user
     public List<ConversationDTO> getAllConversationByIdUser(int id);
+    public Message sendMessage(SendMessageRequest request);
 }

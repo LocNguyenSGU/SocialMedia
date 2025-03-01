@@ -1,6 +1,8 @@
 package com.example.social.media.controller;
 
+import com.example.social.media.entity.Message;
 import com.example.social.media.payload.common.DataResponse;
+import com.example.social.media.payload.request.MessageDTO.SendMessageRequest;
 import com.example.social.media.payload.response.Conversation.ConversationDTO;
 import com.example.social.media.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/messages")
@@ -28,11 +31,40 @@ public class MessageController {
         DataResponse dataResponse = new DataResponse();
         if(conDTO != null){
             dataResponse.setData(conDTO);
-            dataResponse.setMessage("get conversation id: " + idConversation + "successfully");
+            dataResponse.setMessage("get message having conversation id: " + idConversation + "successfully");
+        } else {
+            dataResponse.setStatusCode(404);
+            dataResponse.setData(null);
+            dataResponse.setMessage("get message unsuccessfully");
+        }
+        return new ResponseEntity<>(dataResponse, HttpStatus.valueOf(dataResponse.getStatusCode()));
+    }
+    @GetMapping("/getAllConversation/{idUser}")
+    public ResponseEntity<DataResponse> getAllConversationByIdUser(@PathVariable int idUser){
+        List<ConversationDTO> conDTO = messageService.getAllConversationByIdUser(idUser);
+        DataResponse dataResponse = new DataResponse();
+        if(conDTO != null){
+            dataResponse.setData(conDTO);
+            dataResponse.setMessage("get conversation by user id: " + idUser + "successfully");
         } else {
             dataResponse.setStatusCode(404);
             dataResponse.setData(null);
             dataResponse.setMessage("get conversation unsuccessfully");
+        }
+        return new ResponseEntity<>(dataResponse, HttpStatus.valueOf(dataResponse.getStatusCode()));
+    }
+
+    @PostMapping("/send")
+    public ResponseEntity<DataResponse> sendMessage(@RequestBody SendMessageRequest request) {
+        Message message = messageService.sendMessage(request);
+        DataResponse dataResponse = new DataResponse();
+        if(message != null){
+            dataResponse.setData(message.getContent());
+            dataResponse.setMessage("send message successfully");
+        } else {
+            dataResponse.setStatusCode(404);
+            dataResponse.setData(null);
+            dataResponse.setMessage("send message unsuccessfully");
         }
         return new ResponseEntity<>(dataResponse, HttpStatus.valueOf(dataResponse.getStatusCode()));
     }
