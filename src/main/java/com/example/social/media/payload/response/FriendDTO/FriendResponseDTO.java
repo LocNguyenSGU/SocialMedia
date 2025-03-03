@@ -14,8 +14,9 @@ import org.aspectj.weaver.ast.Not;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 
-
 public class FriendResponseDTO {
     int user_id ;
     int friend_id;
+    boolean isBlock ;
+    int blockByUser;
 }

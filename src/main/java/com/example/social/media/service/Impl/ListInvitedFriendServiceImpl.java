@@ -36,21 +36,33 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
 
     @Override
     public ListInvitedFriendResponseDTO create(ListInvitedFriendCreateRequest request) {
+
+        // check xem 1 trong 2 đã gửi lời mời kết bạn cho người kia chưa
+        //  nếu rồi thì sẽ không the? gui loi moi ket ban nua
+        Optional<ListInvitedFriend> checkRequestExist =  listInvitedFriendRepository.filterReceiverAndSenderExist(request.getReceiver() ,  request.getSender());
+        if (checkRequestExist.isPresent())
+            return null;
+        checkRequestExist =  listInvitedFriendRepository.filterReceiverAndSenderExist(request.getSender() ,  request.getReceiver());
+        if (checkRequestExist.isPresent())
+            return null;
+
         var listInvitedFriend = listInvitedFriendMapper.toListInvitedFriend(request);
         Optional<User> sender = userRepository.findById(request.getSender());
         Optional<User> receiver = userRepository.findById(request.getReceiver());
         listInvitedFriend.setSender(sender.get());
         listInvitedFriend.setReceiver(receiver.get());
         listInvitedFriend =  listInvitedFriendRepository.save(listInvitedFriend);
+
         ListInvitedFriendResponseDTO response = listInvitedFriendMapper.toListInvitedFriendResponseDTO(listInvitedFriend);
         response.setSender(request.getSender());
         response.setReceiver(request.getReceiver());
+
         return  response;
     }
 
     @Override
     public ListInvitedFriendResponseDTO upadte(ListInvitedFriendUpdateRequest request, int id) {
-        ListInvitedFriend listInvitedFriend = listInvitedFriendRepository.findById(id).orElseThrow(() -> new RuntimeException("Friend not exist"));
+        ListInvitedFriend listInvitedFriend = listInvitedFriendRepository.findById(id).orElseThrow(() -> new RuntimeException("listInvitedFriend not exist"));
 //      listInvitedFriendMapper.updateListInvitedFriend(listInvitedFriend , request);
         listInvitedFriend.setStatus(request.getStatus());
         listInvitedFriend = listInvitedFriendRepository.save(listInvitedFriend);
@@ -59,7 +71,7 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
             friendCreateRequest.setUser_id(listInvitedFriend.getSender().getUserId());
             friendCreateRequest.setFriend_id(listInvitedFriend.getReceiver().getUserId());
             FriendResponseDTO friendResponseDTO = friendService.create(friendCreateRequest);
-
+            System.out.println(friendResponseDTO);
         }
         ListInvitedFriendResponseDTO response = listInvitedFriendMapper.toListInvitedFriendResponseDTO(listInvitedFriend);
         response.setSender(listInvitedFriend.getSender().getUserId());
@@ -67,6 +79,7 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
         return  response;
     }
 
+    // lay danh sach minh da gui loi moi ket ban
     @Override
     public List<ListInvitedFriendResponseDTO> getDsBySenderId(int senderId) {
         List<ListInvitedFriend> listInvitedFriends =  listInvitedFriendRepository.getListBySenderId(senderId).stream().toList();
@@ -81,6 +94,7 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
         return response;
     }
 
+    ///  lay danhh sach minh nhan moi ket ban
     @Override
     public List<ListInvitedFriendResponseDTO> getDsByReceiverId(int receiverId) {
         List<ListInvitedFriend> listInvitedFriends =  listInvitedFriendRepository.getListByReceiverId(receiverId).stream().toList();

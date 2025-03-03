@@ -21,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ListInvitedFriendController {
     ListInvitedFriendService listInvitedFriendService ;
-    FriendService friendService;
 
     @PostMapping
     public DataResponse<ListInvitedFriendResponseDTO> create(@Valid @RequestBody ListInvitedFriendCreateRequest request){
