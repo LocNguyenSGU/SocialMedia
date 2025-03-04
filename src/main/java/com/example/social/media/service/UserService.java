@@ -9,8 +9,8 @@ import java.util.Optional;
 
 public interface UserService {
     Optional<UserResponse> getUserProfile(int userId);
-    Optional<UserResponse> updateUserProfile(int userId, UserUpdateRequest userUReq);
-    Optional<UserResponse> updateUserAvatar(int userId, AvatarUpdateRequest avatarUReq);
+    Optional<UserResponse> updateUserProfile(int userId, UserUpdateRequest userUpdateRequest);
+    Optional<UserResponse> updateUserAvatar(int userId, AvatarUpdateRequest avatarUpdateRequest);
     boolean isUserNameExists(String userName);
     boolean isEmailExists(String email);
 }

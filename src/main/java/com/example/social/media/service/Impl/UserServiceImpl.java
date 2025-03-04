@@ -1,5 +1,7 @@
 package com.example.social.media.service.Impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.social.media.entity.User;
 import com.example.social.media.mapper.UserMapper;
 import com.example.social.media.payload.request.ProfileDTO.AvatarUpdateRequest;
@@ -18,7 +20,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
 import java.util.Optional;
+
+import static com.example.social.media.controller.UserController.ALLOWED_CONTENT_TYPES;
 
 
 @Service
@@ -29,6 +34,10 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private Cloudinary cloudinary;
+
 
     private static final String UPLOAD_DIR = "uploads/avatars/";
 
@@ -44,27 +53,27 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Kiểm tra username trùng (trừ chính user đang sửa)
-        if (!user.getUserName().equals(request.getUserName()) &&
+        if (request.getUserName() != null && !user.getUserName().equals(request.getUserName()) &&
                 userRepository.existsByUserName(request.getUserName())) {
             throw new IllegalArgumentException("Username already exists");
         }
 
         // Kiểm tra email trùng (trừ chính user đang sửa)
-        if (!user.getEmail().equals(request.getEmail()) &&
+        if (request.getEmail() != null && !user.getEmail().equals(request.getEmail()) &&
                 userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        user.setUserName(request.getUserName().trim());
-        user.setFirstName(request.getFirstName().trim());
-        user.setLastName(request.getLastName().trim());
-        user.setEmail(request.getEmail().trim());
-        user.setPhoneNumber(request.getPhoneNumber().trim());
+        // Kiểm tra null trước khi gọi trim()
+        user.setUserName(request.getUserName() != null ? request.getUserName().trim() : user.getUserName());
+        user.setFirstName(request.getFirstName() != null ? request.getFirstName().trim() : user.getFirstName());
+        user.setLastName(request.getLastName() != null ? request.getLastName().trim() : user.getLastName());
+        user.setEmail(request.getEmail() != null ? request.getEmail().trim() : user.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber().trim() : user.getPhoneNumber());
 
         userRepository.save(user);
         return Optional.of(userMapper.toDto(user));
     }
-
 
 
     @Override
@@ -79,35 +88,32 @@ public class UserServiceImpl implements UserService {
 
         // Kiểm tra định dạng file
         String contentType = avatarFile.getContentType();
-        if (!contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("Ảnh đại diện phải có định dạng hình ảnh.");
+        if (!ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("Ảnh đại diện phải có định dạng JPEG, PNG hoặc GIF.");
         }
 
         try {
-            // Tạo thư mục lưu trữ nếu chưa tồn tại
-            File uploadDir = new File(UPLOAD_DIR);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-            }
+            // Upload ảnh lên Cloudinary
+            Map uploadResult = cloudinary.uploader().upload(avatarFile.getBytes(),
+                    ObjectUtils.asMap("folder", "user_avatars"));
 
-            // Lưu file vào thư mục
-            String fileName = StringUtils.cleanPath(userId + "_" + avatarFile.getOriginalFilename());
-            Path filePath = Paths.get(UPLOAD_DIR + fileName);
-            Files.copy(avatarFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            // Lấy URL ảnh từ kết quả upload
+            String imageUrl = (String) uploadResult.get("secure_url");
 
-            // Cập nhật đường dẫn vào database (chỉ lưu đường dẫn, không lưu file vào DB)
-            user.setUrlAvatar("/" + UPLOAD_DIR + fileName);
+            // Cập nhật đường dẫn vào database
+            user.setUrlAvatar(imageUrl);
             userRepository.save(user);
 
-        } catch (IOException e) {
-            throw new RuntimeException("Lỗi khi lưu ảnh đại diện: " + e.getMessage());
-        }
+            return Optional.of(userMapper.toDto(user));
 
-        return Optional.of(userMapper.toDto(user));
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi khi tải ảnh lên Cloudinary: " + e.getMessage());
+        }
     }
 
 
-@Override
+
+    @Override
     public boolean isUserNameExists(String userName) {
         return userRepository.existsByUserName(userName.trim());
     }
