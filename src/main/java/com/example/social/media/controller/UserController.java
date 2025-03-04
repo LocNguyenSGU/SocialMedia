@@ -49,6 +49,7 @@ public class UserController {
                     errors.put(error.getField(), error.getDefaultMessage())
             );
 
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new DataResponse(400, errors, "Validation failed for the provided data."));
         }
