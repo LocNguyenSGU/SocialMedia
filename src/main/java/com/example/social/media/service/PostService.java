@@ -5,11 +5,13 @@ import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface PostService {
-    PostResponseDTO createPost(PostCreateRequest postCreateRequest);
+    PostResponseDTO createPost(PostCreateRequest postCreateRequest,  MultipartFile[] files) throws IOException;
     PageResponse<PostResponseDTO> getPosts(int page, int size, String sortDirection);
     Post getPostById(int postId);
     PostResponseDTO getPostResponseDTOById(int postId);

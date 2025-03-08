@@ -2,7 +2,9 @@ package com.example.social.media.service.Impl;
 
 import com.example.social.media.entity.Comment;
 import com.example.social.media.entity.Post;
+import com.example.social.media.entity.PostMedia;
 import com.example.social.media.entity.User;
+import com.example.social.media.enumm.MediaTypeEnum;
 import com.example.social.media.exception.AppException;
 import com.example.social.media.exception.ErrorCode;
 import com.example.social.media.mapper.PostMapper;
@@ -12,6 +14,7 @@ import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
+import com.example.social.media.service.CloudinaryService;
 import com.example.social.media.service.PostService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +25,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,20 +42,47 @@ public class PostServiceImpl implements PostService {
     PostRepository postRepository;
     PostMapper postMapper;
     UserRepository userRepository; // phai la goi thong qua user service -- cai nay de tam thoi
+    CloudinaryService cloudinaryService;
 
     @Override
-    public PostResponseDTO createPost(PostCreateRequest postCreateRequest) {
+    public PostResponseDTO createPost(PostCreateRequest postCreateRequest, MultipartFile[] files) throws IOException {
+        // Kiểm tra user có tồn tại không
         User user = userRepository.findById(postCreateRequest.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-//        new RuntimeException("User not found with ID: " + postCreateRequest.getUserId()))
 
+        // Chuyển PostCreateRequest thành Post entity
         Post post = postMapper.toPost(postCreateRequest);
         post.setUser(user);
 
-        Post savedPost = postRepository.save(post);
-        log.info("Saved post: {}", savedPost);
+        // Lưu bài viết trước
+        post = postRepository.save(post);
+        log.info("Saved post: {}", post);
 
-        PostResponseDTO responseDTO = postMapper.toPostResponseDTO(savedPost);
+        // Nếu có file thì upload lên Cloudinary
+        if (files != null && files.length > 0) {
+            int order = 1;
+            List<PostMedia> postMediaList = new ArrayList<>();
+            for (MultipartFile file : files) {
+                Map<String, String> uploadResult = cloudinaryService.uploadFile(file);
+
+                // Kiểm tra null trước khi lấy media type
+                String mediaType = Optional.ofNullable(uploadResult.get("type")).orElse("").toLowerCase();
+                MediaTypeEnum typeEnum = mediaType.startsWith("image") ? MediaTypeEnum.IMAGE : MediaTypeEnum.VIDEO;
+
+                // Tạo media và set vào post
+                PostMedia postMedia = new PostMedia();
+                postMedia.setPost(post);
+                postMedia.setOrder(order++);
+                postMedia.setMediaUrl(uploadResult.get("url"));
+                postMedia.setMediaType(typeEnum);
+                postMediaList.add(postMedia);
+            }
+            post.setPostMediaList(postMediaList);
+            postRepository.save(post); // Cập nhật bài post với media
+        }
+
+        // Map Post thành DTO và trả về
+        PostResponseDTO responseDTO = postMapper.toPostResponseDTO(post);
         log.info("Response DTO: {}", responseDTO);
 
         return responseDTO;
