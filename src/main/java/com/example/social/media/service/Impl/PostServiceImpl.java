@@ -8,6 +8,7 @@ import com.example.social.media.exception.ErrorCode;
 import com.example.social.media.mapper.PostMapper;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
+import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -65,5 +67,48 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new RuntimeException("Post not found with ID: " + postId));
         return post;
+    }
+
+    @Override
+    public PostResponseDTO getPostResponseDTOById(int postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Khong co post id " + postId));
+        return postMapper.toPostResponseDTO(post);
+    }
+
+    @Override
+    public PageResponse<PostResponseDTO> getPostsByUserId(int page, int size, String sortDirection, int userId) {
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
+        Page<Post> postPage = postRepository.findByUser_UserId(pageable, userId);
+        Page<PostResponseDTO> postResponseDTOS = postPage.map(postMapper::toPostResponseDTO);
+        return new PageResponse<>(postResponseDTOS);
+    }
+
+    @Override
+    public Post createPost(Post post) {
+        return postRepository.save(post);
+    }
+
+    @Override
+    public void updateTotalNumberElementPost(String type, int postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Khong co post id " + postId));
+        if(type.equalsIgnoreCase("comment"))
+            post.setNumberComment(post.getNumberComment() + 1);
+        else if (type.equalsIgnoreCase("share"))
+            post.setNumberShare(post.getNumberShare() + 1);
+        else if (type.equalsIgnoreCase("emotion")) {
+            post.setNumberEmotion(post.getNumberEmotion() + 1);
+        }
+    }
+
+    @Override
+    public PostResponseDTO updatePost(int postId, PostUpdateRequestDTO postUpdateRequestDTO) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Khong co post id " + postId));
+        post.setVisibility(postUpdateRequestDTO.getVisibility());
+        post.setContent(postUpdateRequestDTO.getContent());
+        post.setUpdatedAt(LocalDateTime.now());
+        Post postUpdated =  postRepository.save(post);
+
+        return postMapper.toPostResponseDTO(postUpdated);
     }
 }
