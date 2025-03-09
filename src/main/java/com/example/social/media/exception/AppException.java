@@ -1,6 +1,5 @@
 package com.example.social.media.exception;
 
-import lombok.Getter;
 
 public class AppException extends RuntimeException {
 

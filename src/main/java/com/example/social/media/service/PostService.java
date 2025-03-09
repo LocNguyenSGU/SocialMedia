@@ -22,4 +22,5 @@ public interface PostService {
     void updateTotalNumberElementPost(String type, int postId);
 
     PostResponseDTO updatePost(int postId, PostUpdateRequestDTO postUpdateRequestDTO);
+
 }

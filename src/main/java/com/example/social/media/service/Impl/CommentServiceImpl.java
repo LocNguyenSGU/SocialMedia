@@ -3,6 +3,8 @@ package com.example.social.media.service.Impl;
 import com.example.social.media.entity.Comment;
 import com.example.social.media.entity.CommentCloser;
 import com.example.social.media.entity.User;
+import com.example.social.media.exception.AppException;
+import com.example.social.media.exception.ErrorCode;
 import com.example.social.media.mapper.CommentMapper;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.CommentDTO.CommentCreateRequest;
@@ -78,5 +80,13 @@ public class CommentServiceImpl implements CommentService {
         Page<Comment> comments = repository.findAll(pageable);
         Page<CommentResponseDTO> commentDTOs = comments.map(mapper::toCommentResponseDto);
         return new PageResponse<>(commentDTOs);
+    }
+
+    @Override
+    public CommentResponseDTO getById(int id) {
+        Comment comment = repository.findById(id).
+                orElseThrow(() -> new AppException(ErrorCode.MESSAGE_NOT_EXITED));
+
+        return mapper.toCommentResponseDto(comment);
     }
 }

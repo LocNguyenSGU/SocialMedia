@@ -12,8 +12,8 @@ import org.springframework.http.HttpStatusCode;
 @AllArgsConstructor
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
-    USER_NOT_EXISTED(1000 , "User not found" , HttpStatus.NOT_FOUND)
-
+    USER_NOT_EXISTED(1000 , "User not found" , HttpStatus.NOT_FOUND),
+    MESSAGE_NOT_EXITED(1001 , "Message not found" , HttpStatus.NOT_FOUND)
     ;
 
 
