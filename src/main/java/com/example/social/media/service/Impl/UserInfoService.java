@@ -31,10 +31,10 @@ public class UserInfoService implements UserDetailsService {
                 .build();
     }
 
-    public String addUser(User userInfo) {
+    public boolean addUser(User userInfo) {
         // Encode password before saving the user
         userInfo.setPassword(encoder.encode(userInfo.getPassword()));
-        repository.save(userInfo);
-        return "User Added Successfully";
+        User u = repository.save(userInfo);
+        return !u.getUserName().isEmpty();
     }
 }
