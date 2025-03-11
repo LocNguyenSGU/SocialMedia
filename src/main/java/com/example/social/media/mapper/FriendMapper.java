@@ -12,7 +12,6 @@ import com.example.social.media.payload.response.ListInvitedFriendDTO.ListInvite
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
-
 public interface FriendMapper {
     @Mapping(target = "user.userId" , source = "user_id")
     @Mapping(target = "friend.userId" , source =  "friend_id")

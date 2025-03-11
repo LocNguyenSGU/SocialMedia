@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE , makeFinal = true)
 @Service
 @RequiredArgsConstructor
-
 public class FriendServiceImpl implements FriendService {
 
     FriendRepository friendRepository;
