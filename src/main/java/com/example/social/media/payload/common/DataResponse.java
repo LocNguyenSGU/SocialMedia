@@ -1,5 +1,8 @@
 package com.example.social.media.payload.common;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,5 +26,4 @@ public class DataResponse<T> {
         this.data = data;
         this.message = message;
     }
-
 }
