@@ -39,18 +39,19 @@ public class UserUpdateRequest {
     @NotNull(message = "Lastname is required")
     private String lastName;
 
-    @Email(message = "Invalid email format")
     @Pattern(
-            regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$",
+            regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
             message = "Invalid email format"
     )
+    @NotBlank(message = "Email is required")
     private String email;
+
 
 
     @NotBlank(message = "PhoneNumber is required")
     @Pattern(
-            regexp = "^[0-9]{10,15}$",
-            message = "Phone number must be between 10 and 15 digits"
+            regexp = "^[0-9]{10}$",
+            message = "Phone number must be 10 digits"
     )
     private String phoneNumber;
 }

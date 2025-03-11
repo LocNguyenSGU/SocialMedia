@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserResponse> updateUserProfile(int userId, UserUpdateRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         // Kiểm tra username trùng (trừ chính user đang sửa)
         if (request.getUserName() != null && !user.getUserName().equals(request.getUserName()) &&
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        // Kiểm tra null trước khi gọi trim()
+        // Cập nhật thông tin user
         user.setUserName(request.getUserName() != null ? request.getUserName().trim() : user.getUserName());
         user.setFirstName(request.getFirstName() != null ? request.getFirstName().trim() : user.getFirstName());
         user.setLastName(request.getLastName() != null ? request.getLastName().trim() : user.getLastName());
@@ -74,6 +74,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return Optional.of(userMapper.toDto(user));
     }
+
 
 
     @Override

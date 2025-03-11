@@ -36,37 +36,63 @@ public class UserController {
         }
     }
 
+
     @PutMapping("/{userId}")
     public ResponseEntity<DataResponse> updateUserProfile(
             @PathVariable int userId,
             @Valid @RequestBody UserUpdateRequest request,
             BindingResult bindingResult) {
 
-        // Kiểm tra lỗi validation trước khi xử lý logic
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
+        Map<String, String> validationErrors = new HashMap<>();
+        Map<String, String> businessErrors = new HashMap<>();
 
+        // 1️⃣ Nếu có lỗi validation, thêm vào validationErrors
+        if (bindingResult.hasErrors()) {
+            bindingResult.getFieldErrors().forEach(error ->
+                    validationErrors.put(error.getField(), error.getDefaultMessage()));
+        }
+
+        try {
+            // 2️⃣ Gọi service để cập nhật user, nếu có lỗi thì ném exception
+            Optional<UserResponse> updatedUser = service.updateUserProfile(userId, request);
+
+
+
+        } catch (IllegalArgumentException e) {
+            // 4️⃣ Bắt lỗi từ UserServiceImpl (VD: username tồn tại, email tồn tại)
+            businessErrors.put("businessError", e.getMessage());
+        } catch (Exception e) {
+            // 5️⃣ Bắt lỗi không mong muốn (nếu có)
+            businessErrors.put("serverError", "Internal server error: " + e.getMessage());
+        }
+
+        // 6️⃣ Xử lý phản hồi dựa trên loại lỗi xảy ra
+
+        if (!validationErrors.isEmpty() && !businessErrors.isEmpty()) {
+            // 🔥 Nếu có cả lỗi validation và business
+            Map<String, Object> allErrors = new HashMap<>();
+            allErrors.put("validationErrors", validationErrors);
+            allErrors.put("businessErrors", businessErrors);
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new DataResponse(400, errors, "Validation failed for the provided data."));
+                    .body(new DataResponse(400, allErrors, "Validation and business logic errors."));
         }
 
-        Optional<UserResponse> updatedUser = service.updateUserProfile(userId, request);
-
-        if (updatedUser.isPresent()) {
-            return ResponseEntity.ok(new DataResponse(200, updatedUser.get(), "Profile updated successfully!"));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new DataResponse(404, null, "User not found!"));
+        if (!validationErrors.isEmpty()) {
+            // 🔥 Nếu chỉ có lỗi validation
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new DataResponse(400, validationErrors, "Validation failed."));
         }
+
+        if (!businessErrors.isEmpty()) {
+            // 🔥 Nếu chỉ có lỗi business
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new DataResponse(400, businessErrors, "Business logic error."));
+        }
+
+        // 🔥 Nếu không có lỗi nào, trả về thành công
+        return ResponseEntity.ok(new DataResponse(200, null, "Profile updated successfully!"));
     }
-
-
-
-
 
     @PutMapping("/avatar/{userId}")
     public ResponseEntity<DataResponse> updateAvatar(@PathVariable int userId,
