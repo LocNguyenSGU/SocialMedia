@@ -26,7 +26,7 @@ public class MessageMapper {
 
         // Lấy danh sách cảm xúc (nếu có)
         if (message.getMessageEmotionList() != null) {
-            dto.setMessageEmotionList(message.getMessageEmotionList());
+            dto.setMessageEmotionList(message.getMessageEmotionList().stream().map(MessageEmotionMapper::mapToDTO).collect(Collectors.toList()));
         }
 
         return dto;
