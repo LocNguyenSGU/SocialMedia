@@ -23,4 +23,5 @@ public class DataResponse<T> {
         this.data = data;
         this.message = message;
     }
+
 }
