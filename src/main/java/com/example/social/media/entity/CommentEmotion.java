@@ -1,10 +1,15 @@
 package com.example.social.media.entity;
 
+import com.example.social.media.enumm.CommentEmotionEnum;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,25 +17,28 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentEmotion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_emotion_id")
-    private int commentEmotionId;
+    Integer commentEmotionId;
 
     @ManyToOne
     @JoinColumn(name = "comment_id", nullable = false)
-    private Comment comment;
+    Comment comment;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    User user;
 
     @Column(name = "emotion", nullable = false)
-    private String emotion;
+    @Enumerated(EnumType.STRING)
+    CommentEmotionEnum emotion;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @CreationTimestamp
+    LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
