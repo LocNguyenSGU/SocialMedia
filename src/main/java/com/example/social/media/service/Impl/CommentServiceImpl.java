@@ -24,7 +24,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE , makeFinal = true)
@@ -88,5 +91,33 @@ public class CommentServiceImpl implements CommentService {
                 orElseThrow(() -> new AppException(ErrorCode.MESSAGE_NOT_EXITED));
 
         return mapper.toCommentResponseDto(comment);
+    }
+
+    //Statistics
+    @Override
+    public List<Map<String, Object>> getCommentsStatisticsPerDay() {
+        return convertToMapList(repository.countCommentsPerDay(), "date", "count");
+    }
+
+    @Override
+    public List<Map<String, Object>> getCommentsStatisticsPerMonth() {
+        return convertToMapList(repository.countCommentsPerMonth(), "year", "month", "count");
+    }
+
+    @Override
+    public List<Map<String, Object>> getCommentsStatisticsPerYear() {
+        return convertToMapList(repository.countCommentsPerYear(), "year", "count");
+    }
+
+    private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> data = new HashMap<>();
+            for (int i = 0; i < keys.length; i++) {
+                data.put(keys[i], row[i]);
+            }
+            dataList.add(data);
+        }
+        return dataList;
     }
 }

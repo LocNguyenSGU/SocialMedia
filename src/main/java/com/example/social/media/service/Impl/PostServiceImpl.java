@@ -29,10 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -145,5 +142,33 @@ public class PostServiceImpl implements PostService {
         Post postUpdated =  postRepository.save(post);
 
         return postMapper.toPostResponseDTO(postUpdated);
+    }
+
+    //Statistics
+    @Override
+    public List<Map<String, Object>> getPostStatisticsPerDay() {
+        return convertToMapList(postRepository.countPostsPerDay(), "date", "count");
+    }
+
+    @Override
+    public List<Map<String, Object>> getPostStatisticsPerMonth() {
+        return convertToMapList(postRepository.countPostsPerMonth(), "year", "month", "count");
+    }
+
+    @Override
+    public List<Map<String, Object>> getPostStatisticsPerYear() {
+        return convertToMapList(postRepository.countPostsPerYear(), "year", "count");
+    }
+
+    private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> data = new HashMap<>();
+            for (int i = 0; i < keys.length; i++) {
+                data.put(keys[i], row[i]);
+            }
+            dataList.add(data);
+        }
+        return dataList;
     }
 }

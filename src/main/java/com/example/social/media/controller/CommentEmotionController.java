@@ -7,10 +7,12 @@ import com.example.social.media.service.CommentEmotionService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/comment-emotions")
@@ -26,5 +28,35 @@ public class CommentEmotionController {
         return DataResponse.<CommentEmotionResponseDTO>builder()
                 .data(service.create(request))
                 .build();
+    }
+
+    //statistics
+    @GetMapping("/statistics/daily")
+    public ResponseEntity<DataResponse> getDailyCommentEmotionsStatistics() {
+        List<Map<String, Object>> data = service.getCommentEmotionsStatisticsPerDay();
+
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu tương tác bình luận trong ngày."));
+        }
+            return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng tương tác bình luận theo ngày."));
+
+    }
+
+    @GetMapping("/statistics/monthly")
+    public ResponseEntity<DataResponse> getMonthlyCommentEmotionsStatistics() {
+        List<Map<String, Object>> data = service.getCommentEmotionsStatisticsPerMonth();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu tương tác bình luận trong tháng."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng tương tác bình luận theo tháng."));
+    }
+
+    @GetMapping("/statistics/yearly")
+    public ResponseEntity<DataResponse> getYearlyCommentEmotionsStatistics() {
+        List<Map<String, Object>> data = service.getCommentEmotionsStatisticsPerYear();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu tương tác bình luận trong năm."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng tương tác bình luận theo năm."));
     }
 }

@@ -11,7 +11,12 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/comments")
@@ -65,4 +70,31 @@ public class CommentController {
     }
 
 
+    //statistics
+    @GetMapping("/statistics/daily")
+    public ResponseEntity<DataResponse> getDailyCommentsStatistics() {
+        List<Map<String, Object>> data = service.getCommentsStatisticsPerDay();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu bình luận trong ngày."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bình luận theo ngày."));
+    }
+
+    @GetMapping("/statistics/monthly")
+    public ResponseEntity<DataResponse> getMonthlyCommentsStatistics() {
+        List<Map<String, Object>> data = service.getCommentsStatisticsPerMonth();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu bình luận trong tháng."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bình luận theo tháng."));
+    }
+
+    @GetMapping("/statistics/yearly")
+    public ResponseEntity<DataResponse> getYearlyCommentsStatistics() {
+        List<Map<String, Object>> data = service.getCommentsStatisticsPerYear();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu bình luận trong năm."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bình luận theo năm."));
+    }
 }

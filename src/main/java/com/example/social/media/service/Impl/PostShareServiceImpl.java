@@ -21,6 +21,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -88,5 +91,33 @@ public class PostShareServiceImpl implements PostShareService {
         log.info("Response trả về: {}", response);
 
         return response;
+    }
+
+    //Statistics
+    @Override
+    public List<Map<String, Object>> getPostSharesStatisticsPerDay() {
+        return convertToMapList(postShareRepository.countPostSharesPerDay(), "date", "count");
+    }
+
+    @Override
+    public List<Map<String, Object>> getPostSharesStatisticsPerMonth() {
+        return convertToMapList(postShareRepository.countPostSharesPerMonth(), "year", "month", "count");
+    }
+
+    @Override
+    public List<Map<String, Object>> getPostSharesStatisticsPerYear() {
+        return convertToMapList(postShareRepository.countPostSharesPerYear(), "year", "count");
+    }
+
+    private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> data = new HashMap<>();
+            for (int i = 0; i < keys.length; i++) {
+                data.put(keys[i], row[i]);
+            }
+            dataList.add(data);
+        }
+        return dataList;
     }
 }

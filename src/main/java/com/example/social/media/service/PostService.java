@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface PostService {
     PostResponseDTO createPost(PostCreateRequest postCreateRequest,  MultipartFile[] files) throws IOException;
@@ -22,5 +23,9 @@ public interface PostService {
     void updateTotalNumberElementPost(String type, int postId);
 
     PostResponseDTO updatePost(int postId, PostUpdateRequestDTO postUpdateRequestDTO);
+
+    List<Map<String, Object>> getPostStatisticsPerDay();
+    List<Map<String, Object>> getPostStatisticsPerMonth();
+    List<Map<String, Object>> getPostStatisticsPerYear();
 
 }

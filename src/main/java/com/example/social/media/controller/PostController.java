@@ -14,11 +14,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/posts")
@@ -78,5 +82,35 @@ public class PostController {
                 .data(response)
                 .message("Sua bai post")
                 .build();
+    }
+
+
+    //statistics
+    @GetMapping("/statistics/daily")
+    public ResponseEntity<DataResponse> getDailyPostStatistics() {
+        List<Map<String, Object>> data = postService.getPostStatisticsPerDay();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu bài viết trong ngày."));
+        } else {
+            return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bài viết theo ngày."));
+        }
+    }
+
+    @GetMapping("/statistics/monthly")
+    public ResponseEntity<DataResponse> getMonthlyPostStatistics() {
+        List<Map<String, Object>> data = postService.getPostStatisticsPerMonth();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu bài viết trong tháng."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bài viết theo tháng."));
+    }
+
+    @GetMapping("/statistics/yearly")
+    public ResponseEntity<DataResponse> getYearlyPostStatistics() {
+        List<Map<String, Object>> data = postService.getPostStatisticsPerYear();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu bài viết trong năm."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bài viết theo năm."));
     }
 }
