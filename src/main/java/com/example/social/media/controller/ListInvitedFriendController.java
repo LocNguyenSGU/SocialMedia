@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class ListInvitedFriendController {
     ListInvitedFriendService listInvitedFriendService ;
 
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<ListInvitedFriendResponseDTO> create(@Valid @RequestBody ListInvitedFriendCreateRequest request){
 
         System.out.println("id sender : " + request.getSender());
@@ -38,6 +40,7 @@ public class ListInvitedFriendController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<ListInvitedFriendResponseDTO> update(@Valid @RequestBody ListInvitedFriendUpdateRequest request , @PathVariable("id") int id){
 
         return DataResponse.<ListInvitedFriendResponseDTO>builder()
@@ -46,6 +49,7 @@ public class ListInvitedFriendController {
     }
 
     @GetMapping("/sended/{idSender}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public DataResponse<List<ListInvitedFriendResponseDTO>> getDsBySenderId(@PathVariable("idSender") int idSender){
         return DataResponse.<List<ListInvitedFriendResponseDTO>>builder()
                 .data(listInvitedFriendService.getDsBySenderId(idSender))
@@ -53,6 +57,7 @@ public class ListInvitedFriendController {
                 .build();
     }
     @GetMapping("/received/{idReceiver}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public DataResponse<List<ListInvitedFriendResponseDTO>> getDsByReceiverId(@PathVariable("idReceiver") int idReceiver){
         return DataResponse.<List<ListInvitedFriendResponseDTO>>builder()
                 .data(listInvitedFriendService.getDsByReceiverId(idReceiver))

@@ -8,6 +8,7 @@ import com.example.social.media.service.ConversationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.social.media.mapper.ConversationMapper.mapToDTO;
@@ -22,6 +23,7 @@ public class ConversationController {
     }
     //tạo nhóm chat
     @PostMapping("/group")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<DataResponse> createGroupConversation(
             @RequestHeader("User-Id") Integer creatorId, // header là id đang đăng nhập
             @RequestBody CreateGroupConversationRequest request) {
@@ -54,6 +56,7 @@ public class ConversationController {
     }
     //hàm tạo chat giữa 2 người
     @PostMapping("/one-to-one")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<DataResponse> createOneToOneConversation(
             @RequestHeader("User-Id") Integer creatorId,
             @RequestParam("participantId") Integer participantId) {
@@ -82,6 +85,7 @@ public class ConversationController {
 
     // hàm lấy thông tin của 1 conversation bằng id
     @GetMapping("/{conversationId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<DataResponse> getConversation(
             @PathVariable("conversationId") Integer conversationId) {
         DataResponse dataResponse = new DataResponse();

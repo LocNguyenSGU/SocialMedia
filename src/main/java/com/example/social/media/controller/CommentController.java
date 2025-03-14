@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +22,7 @@ public class CommentController {
     CommentService service;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public DataResponse<PageResponse<CommentResponseDTO>> getPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -35,6 +37,7 @@ public class CommentController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<CommentResponseDTO> create(@Valid @RequestBody CommentCreateRequest request){
         return DataResponse.<CommentResponseDTO>builder()
                 .data(service.create(request))
@@ -42,6 +45,7 @@ public class CommentController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<CommentResponseDTO> update(@Valid @RequestBody CommentUpdateRequest request ,
                                                    @PathVariable("id") int id){
         return DataResponse.<CommentResponseDTO>builder()
@@ -50,6 +54,7 @@ public class CommentController {
     }
 
     @PostMapping("/reply/{parent-id}")
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<CommentResponseDTO> reply(@PathVariable("parent-id") Integer id ,
                                                   @RequestBody CommentCreateRequest request ){
         return DataResponse.<CommentResponseDTO>builder()
@@ -58,6 +63,7 @@ public class CommentController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public DataResponse<CommentResponseDTO> getById(@PathVariable("id") int id){
         return DataResponse.<CommentResponseDTO>builder()
                 .data(service.getById(id))

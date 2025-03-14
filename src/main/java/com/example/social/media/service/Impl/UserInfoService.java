@@ -1,6 +1,8 @@
 package com.example.social.media.service.Impl;
 
 import com.example.social.media.entity.User;
+import com.example.social.media.exception.AppException;
+import com.example.social.media.exception.ErrorCode;
 import com.example.social.media.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,6 +34,10 @@ public class UserInfoService implements UserDetailsService {
     }
 
     public String addUser(User userInfo) {
+
+        if (repository.existsByUserName(userInfo.getUserName()))
+            throw new AppException(ErrorCode.USER_EXISTED);
+
         // Encode password before saving the user
         userInfo.setPassword(encoder.encode(userInfo.getPassword()));
         repository.save(userInfo);

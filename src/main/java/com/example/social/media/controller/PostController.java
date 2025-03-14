@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +30,7 @@ public class PostController {
     PostService postService;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<PostResponseDTO> create(
             @RequestPart(name = "postCreateRequest") String postCreateRequestJson,
             @RequestPart(value = "files", required = false) MultipartFile[] files) throws IOException {
@@ -45,6 +47,7 @@ public class PostController {
                 .build();
     }
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public DataResponse<PageResponse<PostResponseDTO>> getPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -58,6 +61,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public DataResponse<PageResponse<PostResponseDTO>> getPostsByUserId(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -71,6 +75,7 @@ public class PostController {
                 .build();
     }
     @PutMapping("/{postId}")
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<PostResponseDTO> update(@PathVariable int postId, @Valid @RequestBody PostUpdateRequestDTO requestDTO) {
         PostResponseDTO response = postService.updatePost(postId, requestDTO);
         log.info("API Response: {}", response); // Kiểm tra dữ liệu trước khi trả về

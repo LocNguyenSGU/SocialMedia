@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class FriendController {
     FriendService friendService;
 
     @GetMapping("/getlistfriends/{userId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public DataResponse<List<FriendResponseDTO>> getDsFriends(@PathVariable("userId") int userId){
         return DataResponse.<List<FriendResponseDTO>>builder()
                 .data(friendService.getDsFriends(userId))
@@ -33,6 +35,7 @@ public class FriendController {
     }
 
     @GetMapping("/searchFriends/{userId}")
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<List<FriendResponseDTO>> searchFriends(@PathVariable("userId") int userId  , @RequestParam(defaultValue = "") String keyword){
         return DataResponse.<List<FriendResponseDTO>>builder()
                 .data(friendService.searchFriends(userId , keyword))
@@ -40,6 +43,7 @@ public class FriendController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public DataResponse<FriendResponseDTO> update(@Valid @RequestBody FriendUpdateRequest request , @PathVariable("id") int id){
 
         return DataResponse.<FriendResponseDTO>builder()
@@ -48,6 +52,7 @@ public class FriendController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public DataResponse<FriendResponseDTO> delete(@PathVariable("id") int id){
         return DataResponse.<FriendResponseDTO>builder()
                 .data(friendService.delete(id))
