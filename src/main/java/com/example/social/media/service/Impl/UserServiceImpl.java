@@ -20,8 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.example.social.media.controller.UserController.ALLOWED_CONTENT_TYPES;
 
@@ -113,15 +112,35 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     @Override
-    public boolean isUserNameExists(String userName) {
-        return userRepository.existsByUserName(userName.trim());
+    public List<Map<String, Object>> getNewUsersPerDay() {
+        List<Object[]> results = userRepository.countNewUsersPerDay();
+        return convertToMapList(results, "date", "count");
     }
 
     @Override
-    public boolean isEmailExists(String email) {
-        return userRepository.existsByEmail(email.trim());
+    public List<Map<String, Object>> getNewUsersPerMonth() {
+        List<Object[]> results = userRepository.countNewUsersPerMonth();
+        return convertToMapList(results, "year", "month", "count");
     }
+
+    @Override
+    public List<Map<String, Object>> getNewUsersPerYear() {
+        List<Object[]> results = userRepository.countNewUsersPerYear();
+        return convertToMapList(results, "year", "count");
+    }
+
+    private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> data = new HashMap<>();
+            for (int i = 0; i < keys.length; i++) {
+                data.put(keys[i], row[i]);
+            }
+            dataList.add(data);
+        }
+        return dataList;
+    }
+
 }
 
