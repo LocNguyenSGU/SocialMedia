@@ -45,8 +45,9 @@ public class FriendServiceImpl implements FriendService {
     @Override
     public FriendResponseDTO update(FriendUpdateRequest request, int id) {
         Friend friend = friendRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Friend not exist"));
-        friend.setIsBlock(request.isBlock());
-        User user = userRepository.findById(request.getBlockByUser()).orElseThrow(() -> new RuntimeException("User not exist"));
+        System.out.println("IS BLOCK : " + request.getIsBlock());
+        friend.setIsBlock(request.getIsBlock());
+        User user = userRepository.findById(request.getBlockByUser()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not exist"));
         friend.setBlockBy(user);
         friendRepository.save(friend);
         return friendMapper.toFriendResponseDTO(friend);
@@ -70,6 +71,18 @@ public class FriendServiceImpl implements FriendService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " User not exist"));
 
         List<Friend> friends = friendRepository.findFriendsByUserId(userId);
+
+        return friends.stream()
+                .map(friendMapper::toFriendResponseDTO) // Dùng mapstruct để chuyển đổi
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FriendResponseDTO> getDsFriendsBlockByUser(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " User not exist"));
+
+        List<Friend> friends = friendRepository.findBlockedFriendsByUserId(userId);
 
         return friends.stream()
                 .map(friendMapper::toFriendResponseDTO) // Dùng mapstruct để chuyển đổi

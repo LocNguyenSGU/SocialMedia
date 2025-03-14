@@ -34,6 +34,14 @@ public class FriendController {
                 .build();
     }
 
+    @GetMapping("/getlistfriendsblocked/{userId}")
+    public DataResponse<List<FriendResponseDTO>> getDsFriendsBlocked(@PathVariable("userId") int userId){
+        return DataResponse.<List<FriendResponseDTO>>builder()
+                .data(friendService.getDsFriendsBlockByUser(userId))
+                .message(!friendService.getDsFriendsBlockByUser(userId).isEmpty() ? "Đã tìm thấy" : "Không tim thấy")
+                .build();
+    }
+
     @GetMapping("/searchFriends/{userId}")
     public DataResponse<List<FriendResponseDTO>> searchFriends(@PathVariable("userId") int userId  , @RequestParam(defaultValue = "") String keyword){
         return DataResponse.<List<FriendResponseDTO>>builder()
