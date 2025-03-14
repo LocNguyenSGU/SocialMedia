@@ -34,6 +34,10 @@ public class Friend {
     @Column(name = "is_block")
     private Boolean isBlock = false;
 
+    @OneToOne
+    @JoinColumn(name = "block_by")
+    private User blockBy;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
