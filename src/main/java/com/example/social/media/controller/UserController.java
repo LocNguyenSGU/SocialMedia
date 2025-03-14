@@ -113,4 +113,10 @@ public class UserController {
     public ResponseEntity<String> hello(){
         return ResponseEntity.ok("xin chào");
     }
+
+
+    @GetMapping("/getdsusers")
+    public ResponseEntity<DataResponse> getDsUsers(){
+        return ResponseEntity.ok(new DataResponse(200 , getDsUsers() , "lay ds thanh cong"));
+    }
 }

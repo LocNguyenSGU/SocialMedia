@@ -23,6 +23,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.example.social.media.controller.UserController.ALLOWED_CONTENT_TYPES;
 
@@ -127,7 +128,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getDsUsers() {
-        return List.of();
+        List<User> users = userRepository.findAll();
+
+        return users.stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
 
