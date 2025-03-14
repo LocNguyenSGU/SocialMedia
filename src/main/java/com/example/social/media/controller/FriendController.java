@@ -23,12 +23,14 @@ import java.util.List;
 @RequiredArgsConstructor
 
 public class FriendController {
+
     FriendService friendService;
 
     @GetMapping("/getlistfriends/{userId}")
     public DataResponse<List<FriendResponseDTO>> getDsFriends(@PathVariable("userId") int userId){
         return DataResponse.<List<FriendResponseDTO>>builder()
                 .data(friendService.getDsFriends(userId))
+                .message(!friendService.getDsFriends(userId).isEmpty() ? "Đã tìm thấy" : "Không tim thấy")
                 .build();
     }
 
@@ -36,6 +38,7 @@ public class FriendController {
     public DataResponse<List<FriendResponseDTO>> searchFriends(@PathVariable("userId") int userId  , @RequestParam(defaultValue = "") String keyword){
         return DataResponse.<List<FriendResponseDTO>>builder()
                 .data(friendService.searchFriends(userId , keyword))
+                .message(friendService.searchFriends(userId , keyword).isEmpty() ? "Không tìm thấy" : "Đã tìm thấy")
                 .build();
     }
 
@@ -44,6 +47,7 @@ public class FriendController {
 
         return DataResponse.<FriendResponseDTO>builder()
                 .data(friendService.update(request , id))
+                .message("update thành công")
                 .build();
     }
 
@@ -51,6 +55,7 @@ public class FriendController {
     public DataResponse<FriendResponseDTO> delete(@PathVariable("id") int id){
         return DataResponse.<FriendResponseDTO>builder()
                 .data(friendService.delete(id))
+                .message("xoá thành công")
                 .build();
     }
 }

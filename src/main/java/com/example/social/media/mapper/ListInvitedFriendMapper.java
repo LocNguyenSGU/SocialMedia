@@ -8,9 +8,13 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ListInvitedFriendMapper {
+
+    @Mapping(target =  "sender.userId" , source = "sender")
+    @Mapping(target =  "receiver.userId" , source = "receiver")
     ListInvitedFriend toListInvitedFriend(ListInvitedFriendCreateRequest request);
 
-    @Mapping(ignore = true ,target = "sender")
+    @Mapping(target =  "sender" , source = "sender.userId")
+    @Mapping(target =  "receiver" , source = "receiver.userId")
     ListInvitedFriendResponseDTO toListInvitedFriendResponseDTO(ListInvitedFriend listInvitedFriend);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

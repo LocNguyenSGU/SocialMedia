@@ -21,27 +21,47 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ListInvitedFriendController {
     ListInvitedFriendService listInvitedFriendService ;
-
+    FriendService friendService ;
     @PostMapping
     public DataResponse<ListInvitedFriendResponseDTO> create(@Valid @RequestBody ListInvitedFriendCreateRequest request){
 
         System.out.println("id sender : " + request.getSender());
         System.out.println("id receiver : " +  request.getReceiver());
+
+        if(friendService.isFriend(request.getSender() , request.getReceiver()))
+            return DataResponse.<ListInvitedFriendResponseDTO>builder()
+                    .message("2 người đã là bạn bè")
+                    .statusCode(400)
+                    .build();
+
+        if(friendService.isFriend(request.getReceiver() , request.getSender()))
+            return DataResponse.<ListInvitedFriendResponseDTO>builder()
+                    .message("2 người đã là bạn bè")
+                    .statusCode(400)
+                    .build();
+
         if(!request.getStatus().name().equals("SENT"))
             return DataResponse.<ListInvitedFriendResponseDTO>builder()
                     .message("loi moi ket ban phai la status sent")
+                    .statusCode(400)
                     .build();
         return DataResponse.<ListInvitedFriendResponseDTO>builder()
                 .data(listInvitedFriendService.create(request))
                 .message("da gui loi moi ket ban")
+                .statusCode(201)
                 .build();
     }
 
     @PutMapping("/{id}")
     public DataResponse<ListInvitedFriendResponseDTO> update(@Valid @RequestBody ListInvitedFriendUpdateRequest request , @PathVariable("id") int id){
-
+            String mess = null ;
+                mess = request.getStatus().name().equals("ACCEPT") ? "Chấp nhận lời mời kết bạn" : null ;
+                mess = request.getStatus().name().equals("CANCLE") ? "Đã huỷ lời mời kết bạn" : null;
+                mess =  request.getStatus().name().equals("DENY") ?  "Đã từ chối lời mời kết bạn" : null;
+                mess = request.getStatus().name().equals("SENT") ? "Đã gửi lời mời kết bạn" :  null ;
         return DataResponse.<ListInvitedFriendResponseDTO>builder()
                 .data(listInvitedFriendService.upadte(request , id))
+                .message(mess)
                 .build();
     }
 
