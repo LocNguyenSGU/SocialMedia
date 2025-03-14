@@ -112,8 +112,7 @@ public class UserController {
     public ResponseEntity<DataResponse> getDailyNewUsers() {
         List<Map<String, Object>> data = service.getNewUsersPerDay();
         if (data.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body(new DataResponse(204, null, "Không có dữ liệu người dùng mới trong ngày."));
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu người dùng mới trong ngày."));
         }
         return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng người dùng mới theo ngày."));
     }
@@ -122,8 +121,7 @@ public class UserController {
     public ResponseEntity<DataResponse> getMonthlyNewUsers() {
         List<Map<String, Object>> data = service.getNewUsersPerMonth();
         if (data.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body(new DataResponse(204, null, "Không có dữ liệu người dùng mới trong tháng."));
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu người dùng mới trong tháng."));
         }
         return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng người dùng mới theo tháng."));
     }
@@ -132,8 +130,7 @@ public class UserController {
     public ResponseEntity<DataResponse> getYearlyNewUsers() {
         List<Map<String, Object>> data = service.getNewUsersPerYear();
         if (data.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body(new DataResponse(204, null, "Không có dữ liệu người dùng mới trong năm."));
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu người dùng mới trong năm."));
         }
         return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng người dùng mới theo năm."));
     }
