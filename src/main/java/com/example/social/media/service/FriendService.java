@@ -11,6 +11,7 @@ public interface FriendService {
     public FriendResponseDTO update(FriendUpdateRequest request ,  int id);
     public FriendResponseDTO delete(int id);
     public List<FriendResponseDTO> getDsFriends(int userId);
+    public List<FriendResponseDTO> getDsFriendsBlockByUser(int userId);
     public List<FriendResponseDTO> searchFriends(int userId , String keyword) ;
     public boolean isFriend(int userId , int friendId);
 }

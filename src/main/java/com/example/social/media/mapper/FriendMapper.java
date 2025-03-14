@@ -21,6 +21,7 @@ public interface FriendMapper {
     @Mapping(source = "user.userId" , target = "user_id")
     @Mapping(source = "friend.userId" , target =  "friend_id")
     @Mapping(source = "blockBy.userId", target = "blockByUser")
+    @Mapping(source = "isBlock" , target = "isBlock")
     FriendResponseDTO toFriendResponseDTO(Friend friend);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
