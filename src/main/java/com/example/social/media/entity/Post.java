@@ -26,8 +26,8 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "content", columnDefinition = "TEXT")
-    @Lob
+    @Column(name = "content", columnDefinition = "VARCHAR(5000)")
+//    @Lob
     private String content;
 
     @Column(name = "updated_at")

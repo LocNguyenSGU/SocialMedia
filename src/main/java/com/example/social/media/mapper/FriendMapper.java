@@ -12,7 +12,6 @@ import com.example.social.media.payload.response.ListInvitedFriendDTO.ListInvite
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
-
 public interface FriendMapper {
     @Mapping(target = "user.userId" , source = "user_id")
     @Mapping(target = "friend.userId" , source =  "friend_id")
@@ -21,6 +20,7 @@ public interface FriendMapper {
     @Mapping(source = "user.userId" , target = "user_id")
     @Mapping(source = "friend.userId" , target =  "friend_id")
     @Mapping(source = "blockBy.userId", target = "blockByUser")
+    @Mapping(source = "isBlock" , target = "isBlock")
     FriendResponseDTO toFriendResponseDTO(Friend friend);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

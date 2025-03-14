@@ -17,6 +17,6 @@ import org.aspectj.weaver.ast.Not;
 public class FriendResponseDTO {
     int user_id ;
     int friend_id;
-    boolean isBlock ;
+    Boolean isBlock ;
     int blockByUser;
 }

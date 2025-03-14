@@ -17,7 +17,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,12 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
 
     @Override
     public ListInvitedFriendResponseDTO create(ListInvitedFriendCreateRequest request) {
+
+        User checksender = userRepository.findById(request.getSender())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sender not exist"));
+        User checkreceiver = userRepository.findById(request.getReceiver())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Receiver not exist"));
+
 
         // check xem 1 trong 2 đã gửi lời mời kết bạn cho người kia chưa
         //  nếu rồi thì sẽ không the? gui loi moi ket ban nua
@@ -62,7 +70,8 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
 
     @Override
     public ListInvitedFriendResponseDTO upadte(ListInvitedFriendUpdateRequest request, int id) {
-        ListInvitedFriend listInvitedFriend = listInvitedFriendRepository.findById(id).orElseThrow(() -> new RuntimeException("listInvitedFriend not exist"));
+        ListInvitedFriend listInvitedFriend = listInvitedFriendRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ListInvitedFriend not exist"));
 //      listInvitedFriendMapper.updateListInvitedFriend(listInvitedFriend , request);
         listInvitedFriend.setStatus(request.getStatus());
         listInvitedFriend = listInvitedFriendRepository.save(listInvitedFriend);
@@ -82,6 +91,10 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
     // lay danh sach minh da gui loi moi ket ban
     @Override
     public List<ListInvitedFriendResponseDTO> getDsBySenderId(int senderId) {
+
+        User checksender = userRepository.findById(senderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sender not exist"));
+
         List<ListInvitedFriend> listInvitedFriends =  listInvitedFriendRepository.getListBySenderId(senderId).stream().toList();
         List<ListInvitedFriendResponseDTO> response = new ArrayList<>();
         for(ListInvitedFriend item :  listInvitedFriends){
@@ -97,6 +110,10 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
     ///  lay danhh sach minh nhan moi ket ban
     @Override
     public List<ListInvitedFriendResponseDTO> getDsByReceiverId(int receiverId) {
+
+        User checkreceiver = userRepository.findById(receiverId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Receiver not exist"));
+
         List<ListInvitedFriend> listInvitedFriends =  listInvitedFriendRepository.getListByReceiverId(receiverId).stream().toList();
         List<ListInvitedFriendResponseDTO> response = new ArrayList<>();
         for(ListInvitedFriend item :  listInvitedFriends){

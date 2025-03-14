@@ -13,6 +13,9 @@ public interface FriendRepository extends JpaRepository<Friend , Integer> {
     @Query("SELECT f FROM Friend f WHERE (f.user.userId = :loggedInUserId OR f.friend.userId = :loggedInUserId) " +
             "AND f.isBlock = false")
     List<Friend> findFriendsByUserId(@Param("loggedInUserId") int loggedInUserId);
+    // Tìm danh sách bạn bè bị chặn bởi một user có ID cụ thể
+    @Query("SELECT f FROM Friend f WHERE f.blockBy.userId = :userId")
+    List<Friend> findBlockedFriendsByUserId(@Param("userId") int userId);
 
     // Tìm bạn bè theo firstName, lastName, email, hoặc phoneNumber
     // Tìm kiếm bạn bè theo firstName, lastName, phoneNumber, email của người đang đăng nhập
@@ -29,4 +32,8 @@ public interface FriendRepository extends JpaRepository<Friend , Integer> {
             "OR LOWER(f.user.email) LIKE LOWER(CONCAT('%', :keyword, '%'))) ")
     List<Friend> searchFriends(@Param("userId") int UserId,
                                @Param("keyword") String keyword);
+
+    @Query("SELECT COUNT(f) > 0 FROM Friend f WHERE f.user.id = :userId AND f.friend.id = :friendId")
+    boolean existsByUserIdAndFriendId(@Param("userId") int userId, @Param("friendId") int friendId);
+
 }

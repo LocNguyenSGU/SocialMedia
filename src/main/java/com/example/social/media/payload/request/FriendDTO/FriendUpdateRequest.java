@@ -11,6 +11,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FriendUpdateRequest {
-        boolean isBlock  ;
+        Boolean isBlock  ;
         int blockByUser ;
 }

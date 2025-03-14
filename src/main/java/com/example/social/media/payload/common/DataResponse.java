@@ -1,9 +1,13 @@
 package com.example.social.media.payload.common;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 
@@ -11,6 +15,7 @@ import org.springframework.http.HttpStatus;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @Data
+@NoArgsConstructor
 public class DataResponse<T> {
     @Builder.Default
     private int statusCode = 200;

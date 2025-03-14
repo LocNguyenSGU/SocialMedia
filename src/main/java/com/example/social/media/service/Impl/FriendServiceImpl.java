@@ -14,7 +14,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +26,6 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE , makeFinal = true)
 @Service
 @RequiredArgsConstructor
-
 public class FriendServiceImpl implements FriendService {
 
     FriendRepository friendRepository;
@@ -34,11 +35,8 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public FriendResponseDTO create(FriendCreateRequest request) {
+
         Friend friend = friendMapper.toFriend(request);
-        Optional<User> user = userRepository.findById(request.getUser_id());
-        Optional<User> friend_user =  userRepository.findById(request.getFriend_id());
-        friend.setUser(user.get());
-        friend.setFriend(friend_user.get());
         friendRepository.save(friend);
         FriendResponseDTO response = friendMapper.toFriendResponseDTO(friend);
         return response;
@@ -46,9 +44,10 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public FriendResponseDTO update(FriendUpdateRequest request, int id) {
-        Friend friend = friendRepository.findById(id).orElseThrow(() -> new RuntimeException("Friend not exist"));
-        friend.setIsBlock(request.isBlock());
-        User user = userRepository.findById(request.getBlockByUser()).orElseThrow(() -> new RuntimeException("User not exist"));
+        Friend friend = friendRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Friend not exist"));
+        System.out.println("IS BLOCK : " + request.getIsBlock());
+        friend.setIsBlock(request.getIsBlock());
+        User user = userRepository.findById(request.getBlockByUser()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not exist"));
         friend.setBlockBy(user);
         friendRepository.save(friend);
         return friendMapper.toFriendResponseDTO(friend);
@@ -56,7 +55,10 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public FriendResponseDTO delete(int id) {
-        Friend friend = friendRepository.findById(id).orElseThrow(() -> new RuntimeException("Friend not exist"));
+
+
+        Friend friend = friendRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Friend not exist"));
+
         friendRepository.delete(friend);
 
         return friendMapper.toFriendResponseDTO(friend);
@@ -64,6 +66,10 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public List<FriendResponseDTO> getDsFriends(int userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " User not exist"));
+
         List<Friend> friends = friendRepository.findFriendsByUserId(userId);
 
         return friends.stream()
@@ -72,12 +78,40 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
+    public List<FriendResponseDTO> getDsFriendsBlockByUser(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " User not exist"));
+
+        List<Friend> friends = friendRepository.findBlockedFriendsByUserId(userId);
+
+        return friends.stream()
+                .map(friendMapper::toFriendResponseDTO) // Dùng mapstruct để chuyển đổi
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<FriendResponseDTO> searchFriends(int userId , String keyword) {
+
+        User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not exist"));
+
+
         List<Friend> friends = friendRepository.searchFriends(userId , keyword);
 
         return friends.stream()
                 .map(friendMapper::toFriendResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isFriend(int userId, int friendId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not exist"));
+        User friend = userRepository.findById(friendId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Friend not exist"));
+
+        return friendRepository.existsByUserIdAndFriendId(userId , friendId);
     }
 
 }
