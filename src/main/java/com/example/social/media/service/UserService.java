@@ -5,6 +5,7 @@ import com.example.social.media.payload.request.ProfileDTO.AvatarUpdateRequest;
 import com.example.social.media.payload.request.ProfileDTO.UserUpdateRequest;
 import com.example.social.media.payload.response.ProfileDTO.UserResponse;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
@@ -13,5 +14,6 @@ public interface UserService {
     Optional<UserResponse> updateUserAvatar(int userId, AvatarUpdateRequest avatarUpdateRequest);
     boolean isUserNameExists(String userName);
     boolean isEmailExists(String email);
+    List<UserResponse> getDsUsers();
 }
 
