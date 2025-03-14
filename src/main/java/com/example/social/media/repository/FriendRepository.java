@@ -29,4 +29,8 @@ public interface FriendRepository extends JpaRepository<Friend , Integer> {
             "OR LOWER(f.user.email) LIKE LOWER(CONCAT('%', :keyword, '%'))) ")
     List<Friend> searchFriends(@Param("userId") int UserId,
                                @Param("keyword") String keyword);
+
+    @Query("SELECT COUNT(f) > 0 FROM Friend f WHERE f.user.id = :userId AND f.friend.id = :friendId")
+    boolean existsByUserIdAndFriendId(@Param("userId") int userId, @Param("friendId") int friendId);
+
 }
