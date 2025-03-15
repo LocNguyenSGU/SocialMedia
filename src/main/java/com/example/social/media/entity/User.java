@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -58,6 +59,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConversationMember> conversationMemberList;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    Set<Role> roles;
 
     // Lifecycle callbacks
     @PrePersist

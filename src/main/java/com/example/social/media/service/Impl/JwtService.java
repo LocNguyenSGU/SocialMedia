@@ -1,17 +1,18 @@
 package com.example.social.media.service.Impl;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtService {
@@ -20,9 +21,16 @@ public class JwtService {
     public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
     // Generate token with given user name
-    public String generateToken(String userName) {
+    public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userName);
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                .collect(Collectors.toList());
+
+        claims.put("roles", roles);
+        return createToken(claims , userDetails.getUsername());
     }
 
     // Create a JWT token with specified claims and subject (user name)
@@ -37,7 +45,7 @@ public class JwtService {
     }
 
     // Get the signing key for JWT token
-    private Key getSignKey() {
+    public Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -66,14 +74,28 @@ public class JwtService {
                 .getBody();
     }
 
+    public List<String> extractRoles(String token) {
+        Claims claims = Jwts.parser().setSigningKey(getSignKey()).parseClaimsJws(token).getBody();
+        return claims.get("roles", List.class);
+    }
+
     // Check if the token is expired
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
     // Validate the token against user details and expiration
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            // Kiểm tra thời gian hết hạn
+            return !claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            // Token đã hết hạn
+            return false;
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            // Token không hợp lệ (sai định dạng, chữ ký không khớp, v.v.)
+            return false;
+        }
     }
 }

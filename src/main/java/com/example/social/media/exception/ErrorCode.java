@@ -14,6 +14,7 @@ public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_NOT_EXISTED(1000 , "User not found" , HttpStatus.NOT_FOUND),
     USER_EXISTED(1001 , "User existed", HttpStatus.BAD_REQUEST),
+    INVALID_USER_DATA(1002 , "User data is invalid" , HttpStatus.BAD_REQUEST),
     MESSAGE_NOT_EXITED(2000 , "Message not found" , HttpStatus.NOT_FOUND),
     MESSAGE_NOT_FOUND(2001, "Message not found", HttpStatus.NOT_FOUND),
     MESSAGE_SEND_FAILED(2002, "Failed to send message", HttpStatus.INTERNAL_SERVER_ERROR),

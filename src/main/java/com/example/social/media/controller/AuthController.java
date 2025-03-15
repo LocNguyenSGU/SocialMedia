@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +50,7 @@ public class AuthController {
         }
 
         // Kiểm tra email đã tồn tại chưa
-        if (userRepository.findByEmail(userInfo.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(userInfo.getEmail())) {
             errors.put("email", "Email already exists");
         }
 
@@ -107,7 +108,8 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
         );
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getUsername());
+            UserDetails userDetails = service.loadUserByUsername(authRequest.getUsername());
+            return jwtService.generateToken(userDetails);
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }
