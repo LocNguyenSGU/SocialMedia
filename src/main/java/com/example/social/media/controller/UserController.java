@@ -1,5 +1,6 @@
 package com.example.social.media.controller;
 
+import com.example.social.media.entity.User;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.request.ProfileDTO.AvatarUpdateRequest;
 import com.example.social.media.payload.request.ProfileDTO.UserUpdateRequest;
@@ -117,6 +118,30 @@ public class UserController {
 
     @GetMapping("/getdsusers")
     public ResponseEntity<DataResponse> getDsUsers(){
-        return ResponseEntity.ok(new DataResponse(200 , getDsUsers() , "lay ds thanh cong"));
+        List<UserResponse> data = service.getDsUsers();
+        if(data.isEmpty())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DataResponse(404 ,  data,"List User Is Empty"));
+        return ResponseEntity.ok(new DataResponse(200 , data , "Get List User Success"));
+    }
+
+    @PostMapping("/active/{userId}")
+    public ResponseEntity<DataResponse> updateActive(@PathVariable("userId") int userId , @RequestParam(defaultValue = "true") Boolean isActive){
+        return  ResponseEntity.ok(new DataResponse(200 , service.updateActive(userId , isActive) , "update user success"));
+    }
+
+    @GetMapping("/getdsusersbykeyword")
+    public ResponseEntity<DataResponse> getDsUsersByKeyword(@RequestParam(defaultValue = "") String keyword){
+        List<UserResponse> data = service.getDsUsersByKeyword(keyword);
+        if(data.isEmpty())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DataResponse(404 ,  data,"List User By " + keyword +" Keyword Is Empty"));
+        return ResponseEntity.ok(new DataResponse(200 , data , "Get List User By " + keyword + "  Success"));
+    }
+
+    @GetMapping("/getinfouser/{userId}")
+    public ResponseEntity<DataResponse> getinfouser(@PathVariable("userId") int userId){
+        Optional<UserResponse> userResponse = Optional.ofNullable(service.getUserInfo(userId));
+        if(userResponse.isPresent())
+            return  ResponseEntity.ok(new DataResponse(200 , userResponse.get() , "Get info user success"));
+        return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DataResponse(404 , null ,"Not found"));
     }
 }

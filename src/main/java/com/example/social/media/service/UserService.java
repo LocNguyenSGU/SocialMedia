@@ -15,5 +15,10 @@ public interface UserService {
     boolean isUserNameExists(String userName);
     boolean isEmailExists(String email);
     List<UserResponse> getDsUsers();
+    UserResponse updateActive(int userId , Boolean isActive);
+
+    List<UserResponse> getDsUsersByKeyword(String keyword);
+    UserResponse getUserInfo(int userId);
+
 }
 

@@ -10,9 +10,11 @@ import com.example.social.media.payload.response.ProfileDTO.UserResponse;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
@@ -133,6 +135,31 @@ public class UserServiceImpl implements UserService {
         return users.stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserResponse updateActive(int userId, Boolean isActive) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " User not exist"));
+        user.setIsActive(isActive);
+        userRepository.save(user);
+        return userMapper.toDto(user);
+    }
+
+    @Override
+    public List<UserResponse> getDsUsersByKeyword(String keyword) {
+        List<User> users = userRepository.searchUsers(keyword);
+
+        return users.stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserResponse getUserInfo(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " User not exist"));
+        return userMapper.toDto(user);
     }
 }
 
