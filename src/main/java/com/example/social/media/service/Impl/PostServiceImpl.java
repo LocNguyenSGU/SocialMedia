@@ -1,16 +1,17 @@
 package com.example.social.media.service.Impl;
 
-import com.example.social.media.entity.Comment;
 import com.example.social.media.entity.Post;
 import com.example.social.media.entity.PostMedia;
 import com.example.social.media.entity.User;
 import com.example.social.media.enumm.MediaTypeEnum;
+import com.example.social.media.enumm.PostVisibilityEnum;
 import com.example.social.media.exception.AppException;
 import com.example.social.media.exception.ErrorCode;
 import com.example.social.media.mapper.PostMapper;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
+import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
@@ -19,7 +20,9 @@ import com.example.social.media.service.PostService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +44,10 @@ public class PostServiceImpl implements PostService {
     PostMapper postMapper;
     UserRepository userRepository; // phai la goi thong qua user service -- cai nay de tam thoi
     CloudinaryService cloudinaryService;
+
+    @Value("${forbidden.words:}")
+    @NonFinal
+    String forbiddenWordsString;
 
     @Override
     public PostResponseDTO createPost(PostCreateRequest postCreateRequest, MultipartFile[] files) throws IOException {
@@ -158,6 +166,34 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Map<String, Object>> getPostStatisticsPerYear() {
         return convertToMapList(postRepository.countPostsPerYear(), "year", "count");
+    }
+
+    @Override
+    public String deletePost(int id) {
+        Post post = postRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Post not existed"));
+
+        String content = post.getContent().toLowerCase();
+
+        List<String> forbiddenWords = List.of(forbiddenWordsString.split(","));
+        for (String forbiddenWord : forbiddenWords) {
+            log.info(forbiddenWord);
+            if (content.contains(forbiddenWord.trim().toLowerCase())) {
+                postRepository.delete(post);
+                return "Bài viết đã được kiểm tra và xóa cảm ơn bạn";
+            }
+        }
+
+        return "Bài viết không chứa từ ngữ vi phạm";
+
+    }
+
+    @Override
+    public Page<PostResponseDTO> findByVisibility(ListRequest request) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getPageSize(),
+                Sort.by(request.getSort()).descending());
+        return postRepository.findByVisibility(PostVisibilityEnum.PUBLIC, pageable)
+                .map(postMapper::toPostResponseDTO);
     }
 
     private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {

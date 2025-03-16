@@ -1,9 +1,11 @@
 package com.example.social.media.controller;
 
+import com.example.social.media.entity.Comment;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.CommentDTO.CommentCreateRequest;
 import com.example.social.media.payload.request.CommentDTO.CommentUpdateRequest;
+import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.service.CommentService;
@@ -11,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -67,6 +70,23 @@ public class CommentController {
         return DataResponse.<CommentResponseDTO>builder()
                 .data(service.getById(id))
                 .build();
+    }
+
+    @GetMapping("/check/{commentId}")
+    public DataResponse<String> checkPostContent(@PathVariable("commentId") int commentId) {
+        String result = service.deleteComment(commentId);
+        return DataResponse.<String>builder()
+                .data(result)
+                .message("check comment")
+                .build();
+    }
+
+    @GetMapping("/public/{postId}/paginated")
+    public ResponseEntity<Page<CommentResponseDTO>> getPublicCommentsByPostIdPaginated(
+            @PathVariable int postId,
+            @ModelAttribute ListRequest request) {
+        Page<CommentResponseDTO> comments = service.findByPostPostId(postId,request);
+        return ResponseEntity.ok(comments);
     }
 
 

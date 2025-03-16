@@ -1,6 +1,7 @@
 package com.example.social.media.repository;
 
 import com.example.social.media.entity.Post;
+import com.example.social.media.enumm.PostVisibilityEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,4 +35,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> , JpaSpecif
             "GROUP BY FUNCTION('YEAR', p.createdAt) " +
             "ORDER BY year")
     List<Object[]> countPostsPerYear();
+
+    Page<Post> findByVisibility(PostVisibilityEnum visibility, Pageable pageable);
+
 }

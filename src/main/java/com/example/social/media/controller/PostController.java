@@ -1,11 +1,11 @@
 package com.example.social.media.controller;
 
+import com.example.social.media.entity.Post;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.common.PageResponse;
-import com.example.social.media.payload.request.CommentDTO.CommentCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
-import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
+import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +14,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -84,6 +84,21 @@ public class PostController {
                 .build();
     }
 
+    @GetMapping("/check/{postId}")
+    public DataResponse<String> checkPostContent(@PathVariable("postId") int postId) {
+            String result = postService.deletePost(postId);
+            return DataResponse.<String>builder()
+                    .data(result)
+                    .message("check bai post")
+                    .build();
+    }
+
+    @GetMapping("/public/paginated")
+    public ResponseEntity<Page<PostResponseDTO>> getPublicPostsPaginated(
+            @ModelAttribute ListRequest request) {
+        Page<PostResponseDTO> posts = postService.findByVisibility(request);
+        return ResponseEntity.ok(posts);
+    }
 
     //statistics
     @GetMapping("/statistics/daily")
@@ -113,4 +128,5 @@ public class PostController {
         }
         return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bài viết theo năm."));
     }
+
 }

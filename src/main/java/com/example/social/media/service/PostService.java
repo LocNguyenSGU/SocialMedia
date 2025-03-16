@@ -4,7 +4,9 @@ import com.example.social.media.entity.Post;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
+import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,5 +29,7 @@ public interface PostService {
     List<Map<String, Object>> getPostStatisticsPerDay();
     List<Map<String, Object>> getPostStatisticsPerMonth();
     List<Map<String, Object>> getPostStatisticsPerYear();
+    public String deletePost(int id);
+    Page<PostResponseDTO> findByVisibility(ListRequest listRequest);
 
 }
