@@ -2,6 +2,7 @@ package com.example.social.media.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -57,11 +59,13 @@ public class User {
     @Column(name = "url_background")
     private String urlBackground;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    Set<Role> roles;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConversationMember> conversationMemberList;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    Set<Role> roles;
+
 
     // Lifecycle callbacks
     @PrePersist

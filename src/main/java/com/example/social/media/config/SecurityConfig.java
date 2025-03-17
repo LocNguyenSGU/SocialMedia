@@ -39,7 +39,8 @@ public class SecurityConfig {
         return new UserInfoService(); // Ensure UserInfoService implements UserDetailsService
     }
 
-    private final String[] PUBLIC_ENDPOINTS = {"/auth/welcome", "/auth/addNewUser", "/auth/generateToken"};
+    private final String[] PUBLIC_ENDPOINTS = {"/auth/welcome",
+            "/auth/addNewUser", "/auth/generateToken" ,"/mock/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -47,7 +48,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST , PUBLIC_ENDPOINTS).permitAll()
+                            .requestMatchers(HttpMethod.POST , PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated() // Protect all other endpoints
