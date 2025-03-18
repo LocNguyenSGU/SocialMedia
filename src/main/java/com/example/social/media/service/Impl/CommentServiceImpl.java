@@ -12,6 +12,7 @@ import com.example.social.media.payload.request.CommentDTO.CommentUpdateRequest;
 import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
 import com.example.social.media.repository.CommentCloserRepository;
 import com.example.social.media.repository.CommentRepository;
+import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.CommentService;
 import lombok.AccessLevel;
@@ -35,10 +36,17 @@ public class CommentServiceImpl implements CommentService {
     CommentMapper mapper;
     UserRepository userRepository;
     CommentCloserRepository commentCloserRepository;
+    PostRepository postRepository;
 
     @Override
     public CommentResponseDTO create(CommentCreateRequest request) {
         var comment = mapper.toComment(request);
+
+        var post =  postRepository.findById(request.getPostId()).orElseThrow();
+        var user = userRepository.findById(request.getUserId()).orElseThrow();
+
+        comment.setPost(post);
+        comment.setUser(user);
         comment = repository.save(comment);
         return mapper.toCommentResponseDto(comment);
     }

@@ -10,8 +10,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentCreateRequest {
-    Long postId;
-    Long userId;
+    Integer postId;
+    Integer userId;
     @Min(value = 1 , message = "Comment at least 1 character")
     String content;
     CommentTypeEnum typeComment;
