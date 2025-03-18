@@ -61,13 +61,12 @@ public class SeedService {
         );
 
         roles.forEach((key, role) -> {
-            if (roleRepository.findById(role.getName()) == null){
+            if (roleRepository.findById(role.getName()).isEmpty()){
                 var roleSaved = roleRepository.save(role);
                 roles.put(key , roleSaved);
             }
         });
 
-        log.info("roles: {}" , roles);
 
         if (userRepository.findByUserName("ADMIN") == null) {
             userRepository.save(User.builder()
@@ -93,7 +92,7 @@ public class SeedService {
             user.setFirstName(faker.name().firstName());
             user.setLastName(faker.name().lastName());
             user.setEmail(faker.internet().emailAddress());
-            user.setPassword(passwordEncoder.encode(faker.internet().password())); // Bạn có thể mã hóa nếu cần
+            user.setPassword(passwordEncoder.encode("123456")); // Bạn có thể mã hóa nếu cần
             user.setPhoneNumber(faker.phoneNumber().cellPhone());
             user.setIsActive(faker.bool().bool());
             user.setIsOnline(random.nextBoolean());
