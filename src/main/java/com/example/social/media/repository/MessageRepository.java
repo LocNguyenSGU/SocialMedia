@@ -14,9 +14,8 @@ import java.util.List;
 public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("select m from Message m where m.conversationId.conversationId = :conversationId " +
             "and m.isDelete = false " +
-            "and m.sender.userId = :idUser " +
             "and (:lastMessageTime IS NULL OR m.createdAt < :lastMessageTime) " +
-            "order by m.createdAt desc")
+            "order by m.createdAt asc")
     List<Message> findMessageByConversationWithPagination ( @Param("idUser") int idUser,
                                                             @Param("conversationId") int conversationId,
                                                             @Param("lastMessageTime") LocalDateTime lastMessageTime,

@@ -1,21 +1,25 @@
 package com.example.social.media.controller;
 
 import com.example.social.media.entity.Message;
+import com.example.social.media.mapper.MessageMapper;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.request.MessageDTO.SendMessageRequest;
 import com.example.social.media.payload.response.Conversation.ConversationDTO;
+import com.example.social.media.payload.response.MessageDTO.MessageDTO;
 import com.example.social.media.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/messages")
+@RequestMapping("/messages")
 public class MessageController {
     private MessageService messageService;
     @Autowired
@@ -59,12 +63,27 @@ public class MessageController {
         Message message = messageService.sendMessage(request);
         DataResponse dataResponse = new DataResponse();
         if(message != null){
-            dataResponse.setData(message.getContent());
+            MessageDTO mesDTO = MessageMapper.mapToDTO(message);
+            dataResponse.setData(mesDTO);
             dataResponse.setMessage("send message successfully");
         } else {
             dataResponse.setStatusCode(404);
             dataResponse.setData(null);
             dataResponse.setMessage("send message unsuccessfully");
+        }
+        return new ResponseEntity<>(dataResponse, HttpStatus.valueOf(dataResponse.getStatusCode()));
+    }
+    @PostMapping("/sendFile")
+    public ResponseEntity<DataResponse> sendMessageHaveFile(@RequestPart("request") SendMessageRequest request, @RequestPart(value = "files", required = false) MultipartFile[] files) throws IOException {
+        Message message = messageService.sendMessageHaveFile(request, files);
+        DataResponse dataResponse = new DataResponse();
+        if(message != null){
+            dataResponse.setData(message.getContent());
+            dataResponse.setMessage("send message have file successfully");
+        } else {
+            dataResponse.setStatusCode(404);
+            dataResponse.setData(null);
+            dataResponse.setMessage("send message have file unsuccessfully");
         }
         return new ResponseEntity<>(dataResponse, HttpStatus.valueOf(dataResponse.getStatusCode()));
     }

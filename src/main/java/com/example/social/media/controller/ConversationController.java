@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import static com.example.social.media.mapper.ConversationMapper.mapToDTO;
 
 @RestController
-@RequestMapping("/api/conversation")
+@RequestMapping("/conversation")
 public class ConversationController {
     private ConversationService conversationService;
     @Autowired

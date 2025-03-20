@@ -18,7 +18,7 @@ public class MessageMapper {
         dto.setCreatedAt(message.getCreatedAt());
 
         // Lấy trạng thái tin nhắn (nếu có)
-        if (!message.getMessageStatusList().isEmpty()) {
+        if (message.getMessageStatusList() != null && !message.getMessageStatusList().isEmpty()) {
             MessageStatus latestStatus = message.getMessageStatusList().get(0);
             dto.setMessageStatus(latestStatus.getMessageStatus());
             dto.setReadAt(latestStatus.getReadAt());
@@ -26,7 +26,7 @@ public class MessageMapper {
 
         // Lấy danh sách cảm xúc (nếu có)
         if (message.getMessageEmotionList() != null) {
-            dto.setMessageEmotionList(message.getMessageEmotionList());
+            dto.setMessageEmotionList(message.getMessageEmotionList().stream().map(MessageEmotionMapper::mapToDTO).collect(Collectors.toList()));
         }
 
         return dto;

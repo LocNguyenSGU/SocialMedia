@@ -5,7 +5,9 @@ import com.example.social.media.payload.request.MessageDTO.SendMessageRequest;
 import com.example.social.media.payload.response.Conversation.ConversationDTO;
 import com.example.social.media.payload.response.MessageDTO.MessageDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,4 +18,5 @@ public interface MessageService {
     // hàm lấy danh sách conversation của 1 user bằng id user
     public List<ConversationDTO> getAllConversationByIdUser(int id);
     public Message sendMessage(SendMessageRequest request);
+    public Message sendMessageHaveFile(SendMessageRequest request, MultipartFile[] files) throws IOException;
 }

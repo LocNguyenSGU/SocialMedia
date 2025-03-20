@@ -3,6 +3,7 @@ package com.example.social.media.payload.response.MessageDTO;
 import com.example.social.media.entity.MessageEmotion;
 import com.example.social.media.enumm.MediaTypeEnum;
 import com.example.social.media.enumm.MessageStatusEnum;
+import com.example.social.media.payload.response.MessageEmotionDTO.MessageEmotionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +24,5 @@ public class MessageDTO {
     private LocalDateTime updateAt;
     private Boolean isDelete = false;
     private LocalDateTime createdAt;
-    private List<MessageEmotion> messageEmotionList;
+    private List<MessageEmotionDTO> messageEmotionList;
 }
