@@ -3,6 +3,7 @@ package com.example.social.media.payload.response.PostDTO;
 import com.example.social.media.enumm.PostTypeEnum;
 import com.example.social.media.enumm.PostVisibilityEnum;
 import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
+import com.example.social.media.payload.response.PostMediaDTO.PostMediaResponseDTO;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,5 +30,5 @@ public class PostResponseDTO {
     PostVisibilityEnum visibility;
     PostTypeEnum typePost;
     List<CommentResponseDTO> comments = new ArrayList<>();
-//    List<PostMediaResponseDTO> postMedia;
+    List<PostMediaResponseDTO> postMedia;
 }

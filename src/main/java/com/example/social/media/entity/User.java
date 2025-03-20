@@ -1,5 +1,6 @@
 package com.example.social.media.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -57,6 +58,7 @@ public class User {
     private String urlBackground;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // Ngăn Jackson gây vòng lặp vô hạn
     private List<ConversationMember> conversationMemberList;
 
     // Lifecycle callbacks

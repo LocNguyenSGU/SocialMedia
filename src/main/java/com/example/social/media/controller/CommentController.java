@@ -57,5 +57,12 @@ public class CommentController {
                 .build();
     }
 
+    @GetMapping("/{id}")
+    public DataResponse<CommentResponseDTO> getById(@PathVariable("id") int id){
+        return DataResponse.<CommentResponseDTO>builder()
+                .data(service.getById(id))
+                .build();
+    }
+
 
 }

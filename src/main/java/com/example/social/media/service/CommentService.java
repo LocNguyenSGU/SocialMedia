@@ -11,4 +11,5 @@ public interface CommentService {
     public CommentResponseDTO update(int id ,CommentUpdateRequest request);
     public CommentResponseDTO replyToComment(Integer parentId, CommentCreateRequest request);
     public PageResponse<CommentResponseDTO> getListComment(int page, int size, String sortDirection);
+    public CommentResponseDTO getById(int id);
 }
