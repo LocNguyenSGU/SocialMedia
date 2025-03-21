@@ -2,6 +2,8 @@ package com.example.social.media.controller;
 import com.example.social.media.entity.User;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.request.AuthDTO.AuthRequest;
+import com.example.social.media.payload.request.AuthDTO.LogoutRequest;
+import com.example.social.media.payload.response.Aut.AuthenticationResponse;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.Impl.JwtService;
 import com.example.social.media.service.Impl.UserInfoService;
@@ -50,7 +52,7 @@ public class AuthController {
         }
 
         // Kiểm tra email đã tồn tại chưa
-        if (userRepository.findByEmail(userInfo.getEmail())) {
+        if (userRepository.existsByEmail(userInfo.getEmail())) {
             errors.put("email", "Email already exists");
         }
 
@@ -102,14 +104,24 @@ public class AuthController {
         return "Welcome to Admin Profile";
     }
 
+    @PostMapping("/logout")
+    public DataResponse<Void> logout(@RequestBody LogoutRequest logoutRequest){
+        jwtService.logout(logoutRequest);
+        return DataResponse.<Void>builder().build();
+    }
+
     @PostMapping("/generateToken")
-    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+    public AuthenticationResponse authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
         );
         if (authentication.isAuthenticated()) {
             UserDetails userDetails = service.loadUserByUsername(authRequest.getUsername());
-            return jwtService.generateToken(userDetails);
+            return  new AuthenticationResponse().builder()
+                     .authenticated(true)
+                     .token(jwtService.generateToken(userDetails))
+                     .build();
+
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }
