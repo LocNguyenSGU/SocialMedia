@@ -147,6 +147,15 @@ public class UserController {
         return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng người dùng mới theo năm."));
     }
 
+    @GetMapping("/statistics/weekly")
+    public ResponseEntity<DataResponse> getWeeklyNewUsers() {
+        List<Map<String, Object>> data = service.getNewUsersPerWeek();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu người dùng mới trong tuần."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng người dùng mới theo tuần."));
+    }
+
     @GetMapping
     public ResponseEntity<String> hello(){
         return ResponseEntity.ok("xin chào");

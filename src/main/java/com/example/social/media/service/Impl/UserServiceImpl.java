@@ -160,6 +160,12 @@ public class UserServiceImpl implements UserService {
         return convertToMapList(results, "year", "count");
     }
 
+    @Override
+    public List<Map<String, Object>> getNewUsersPerWeek() {
+        List<Object[]> results = userRepository.countNewUsersPerWeek();
+        return convertToMapList(results, "year", "week", "count");
+    }
+
     private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {
         List<Map<String, Object>> dataList = new ArrayList<>();
         for (Object[] row : results) {

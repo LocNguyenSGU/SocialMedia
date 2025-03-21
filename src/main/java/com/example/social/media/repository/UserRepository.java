@@ -29,5 +29,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "GROUP BY FUNCTION('YEAR', u.createdAt) " +
             "ORDER BY year")
     List<Object[]> countNewUsersPerYear();
-}
 
+    // Thêm thống kê theo tuần
+    @Query("SELECT FUNCTION('YEAR', u.createdAt) as year, " +
+            "FUNCTION('WEEK', u.createdAt) as week, " +
+            "COUNT(u) as count FROM User u " +
+            "GROUP BY FUNCTION('YEAR', u.createdAt), FUNCTION('WEEK', u.createdAt) " +
+            "ORDER BY year, week")
+    List<Object[]> countNewUsersPerWeek();
+}

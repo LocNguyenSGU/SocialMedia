@@ -17,6 +17,6 @@ public interface UserService {
     List<Map<String, Object>> getNewUsersPerDay();
     List<Map<String, Object>> getNewUsersPerMonth();
     List<Map<String, Object>> getNewUsersPerYear();
-
+    List<Map<String, Object>> getNewUsersPerWeek();
 }
 
