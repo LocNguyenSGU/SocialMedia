@@ -13,6 +13,7 @@ public interface UserService {
     Optional<UserResponse> getUserProfile(int userId);
     Optional<UserResponse> updateUserProfile(int userId, UserUpdateRequest userUpdateRequest);
     Optional<UserResponse> updateUserAvatar(int userId, AvatarUpdateRequest avatarUpdateRequest);
+    public Optional<UserResponse>removeUserAvatar(int userId);
     List<Map<String, Object>> getNewUsersPerDay();
     List<Map<String, Object>> getNewUsersPerMonth();
     List<Map<String, Object>> getNewUsersPerYear();

@@ -108,6 +108,18 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/avatar/{userId}")
+    public ResponseEntity<DataResponse> removeUserAvatar(@PathVariable int userId) {
+        try {
+            Optional<UserResponse> userResponse = service.removeUserAvatar(userId);
+            return ResponseEntity.ok(new DataResponse(200, userResponse.get(), "Avatar removed successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new DataResponse(404, null, e.getMessage()));
+        }
+    }
+
+
     @GetMapping("/statistics/daily")
     public ResponseEntity<DataResponse> getDailyNewUsers() {
         List<Map<String, Object>> data = service.getNewUsersPerDay();

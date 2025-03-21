@@ -111,6 +111,36 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public Optional<UserResponse> removeUserAvatar(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Nếu avatar không phải mặc định, tiến hành xóa trên Cloudinary (nếu có)
+        if (user.getUrlAvatar() != null && !user.getUrlAvatar().equals("/images/default-avatar.jpg")) {
+            try {
+                // Lấy public_id của ảnh từ URL (nếu cần xóa trên Cloudinary)
+                String publicId = extractPublicIdFromUrl(user.getUrlAvatar());
+                cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            } catch (Exception e) {
+                throw new RuntimeException("Lỗi khi xóa avatar trên Cloudinary: " + e.getMessage());
+            }
+        }
+
+        // Đặt avatar về ảnh mặc định
+        user.setUrlAvatar("/images/default-avatar.jpg");
+        userRepository.save(user);
+
+        return Optional.of(userMapper.toDto(user));
+    }
+
+    // Phương thức trích xuất public_id từ URL của Cloudinary
+    private String extractPublicIdFromUrl(String imageUrl) {
+        String[] parts = imageUrl.split("/");
+        return parts[parts.length - 1].split("\\.")[0]; // Lấy phần không có đuôi .jpg, .png
+    }
+
+
 
     @Override
     public List<Map<String, Object>> getNewUsersPerDay() {
