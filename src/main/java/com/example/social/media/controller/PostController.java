@@ -145,7 +145,7 @@ public class PostController {
             if (topPosts.isEmpty()) {
                 return ResponseEntity.ok(new DataResponse(204, null, "No posts found for the given time frame."));
             }
-            return ResponseEntity.ok(new DataResponse(200, topPosts, "Top 5 posts by interaction retrieved successfully."));
+            return ResponseEntity.ok(new DataResponse(200, topPosts, "Top 3 posts by interaction retrieved successfully."));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new DataResponse(400, null, e.getMessage()));
         } catch (Exception e) {

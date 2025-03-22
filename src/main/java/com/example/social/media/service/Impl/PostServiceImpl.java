@@ -175,7 +175,7 @@ public class PostServiceImpl implements PostService {
     public List<TopPostResponseDTO> getTop5PostsByInteraction(LocalDateTime startDate, LocalDateTime endDate) {
         List<Post> posts = postRepository.findTop5ByInteraction(startDate, endDate);
         return posts.stream()
-                .limit(5)
+                .limit(3)
                 .map(post -> {
                     long totalInteraction = post.getNumberEmotion() + post.getNumberComment() + post.getNumberShare();
                     return new TopPostResponseDTO(
