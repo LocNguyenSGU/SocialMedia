@@ -10,6 +10,10 @@ import com.example.social.media.payload.response.ProfileDTO.UserResponse;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -129,13 +133,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> getDsUsers() {
-        List<User> users = userRepository.findAll();
+    public Page<UserResponse> getDsUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("userId").ascending());
+        Page<User> userPage = userRepository.findAll(pageable);
 
-        return users.stream()
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
+        return userPage.map(userMapper::toDto);
     }
+
 
     @Override
     public UserResponse updateActive(int userId, Boolean isActive) {
@@ -147,13 +151,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> getDsUsersByKeyword(String keyword) {
-        List<User> users = userRepository.searchUsers(keyword);
+    public Page<UserResponse> getDsUsersByKeyword(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("userId").ascending());
+        Page<User> userPage = userRepository.searchUsers(keyword, pageable);
 
-        return users.stream()
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
+        return userPage.map(userMapper::toDto);
     }
+
 
     @Override
     public UserResponse getUserInfo(int userId) {

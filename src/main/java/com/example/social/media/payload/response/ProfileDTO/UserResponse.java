@@ -18,5 +18,6 @@ public class UserResponse {
     private Boolean isOnline;
     private String urlAvatar;
     private String urlBackground;
+    private String password ;
 }
 

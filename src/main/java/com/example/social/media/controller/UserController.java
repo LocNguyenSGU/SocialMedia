@@ -2,12 +2,14 @@ package com.example.social.media.controller;
 
 import com.example.social.media.entity.User;
 import com.example.social.media.payload.common.DataResponse;
+import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.ProfileDTO.AvatarUpdateRequest;
 import com.example.social.media.payload.request.ProfileDTO.UserUpdateRequest;
 import com.example.social.media.payload.response.ProfileDTO.UserResponse;
 import com.example.social.media.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -117,12 +119,15 @@ public class UserController {
 
 
     @GetMapping("/getdsusers")
-    public ResponseEntity<DataResponse> getDsUsers(){
-        List<UserResponse> data = service.getDsUsers();
-        if(data.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DataResponse(404 ,  data,"List User Is Empty"));
-        return ResponseEntity.ok(new DataResponse(200 , data , "Get List User Success"));
+    public ResponseEntity<PageResponse<UserResponse>> getDsUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<UserResponse> userPage = service.getDsUsers(page, size);
+
+        return ResponseEntity.ok(new PageResponse<>(userPage));
     }
+
 
     @PostMapping("/active/{userId}")
     public ResponseEntity<DataResponse> updateActive(@PathVariable("userId") int userId , @RequestParam(defaultValue = "true") Boolean isActive){
@@ -130,12 +135,16 @@ public class UserController {
     }
 
     @GetMapping("/getdsusersbykeyword")
-    public ResponseEntity<DataResponse> getDsUsersByKeyword(@RequestParam(defaultValue = "") String keyword){
-        List<UserResponse> data = service.getDsUsersByKeyword(keyword);
-        if(data.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DataResponse(404 ,  data,"List User By " + keyword +" Keyword Is Empty"));
-        return ResponseEntity.ok(new DataResponse(200 , data , "Get List User By " + keyword + "  Success"));
+    public ResponseEntity<PageResponse<UserResponse>> getDsUsersByKeyword(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<UserResponse> userPage = service.getDsUsersByKeyword(keyword, page, size);
+
+        return ResponseEntity.ok(new PageResponse<>(userPage));
     }
+
 
     @GetMapping("/getinfouser/{userId}")
     public ResponseEntity<DataResponse> getinfouser(@PathVariable("userId") int userId){
