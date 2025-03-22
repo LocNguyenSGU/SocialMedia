@@ -13,6 +13,13 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User , Integer>, JpaSpecificationExecutor<User> {
     boolean existsByUserName(String userName);
     boolean existsByEmail(String email);
+    boolean existsByPhoneNumber(String phoneNumber);
+
+
+    boolean existsByUserNameAndUserIdNot(String userName, int userId);
+    boolean existsByEmailAndUserIdNot(String email, int userId);
+    boolean existsByPhoneNumberAndUserIdNot(String phoneNumber, int userId);
+
     User findByUserName(String username);
     User findByUserId(int userId);
 

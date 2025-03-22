@@ -7,6 +7,7 @@ import com.example.social.media.payload.response.ProfileDTO.UserResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserService {
@@ -20,6 +21,7 @@ public interface UserService {
 
     Page<UserResponse> getDsUsersByKeyword(String keyword , int page , int size);
     UserResponse getUserInfo(int userId);
+    Map<String, String> validateUserFields(Integer userId , String userName, String email, String phoneNumber);
 
 }
 

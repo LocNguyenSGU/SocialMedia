@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -164,6 +165,37 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, " User not exist"));
         return userMapper.toDto(user);
+    }
+
+    @Override
+    public Map<String, String> validateUserFields(Integer userId, String userName, String email, String phoneNumber) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (userId == 0) {
+            // Trường hợp tạo mới → kiểm tra toàn bộ
+            if (userRepository.existsByUserName(userName)) {
+                errors.put("userName", "Tên đăng nhập đã tồn tại.");
+            }
+            if (userRepository.existsByEmail(email)) {
+                errors.put("email", "Email đã tồn tại.");
+            }
+            if (userRepository.existsByPhoneNumber(phoneNumber)) {
+                errors.put("phoneNumber", "Số điện thoại đã tồn tại.");
+            }
+        } else {
+            // Trường hợp cập nhật → bỏ qua chính userId hiện tại
+            if (userRepository.existsByUserNameAndUserIdNot(userName, userId)) {
+                errors.put("userName", "Tên đăng nhập đã tồn tại.");
+            }
+            if (userRepository.existsByEmailAndUserIdNot(email, userId)) {
+                errors.put("email", "Email đã tồn tại.");
+            }
+            if (userRepository.existsByPhoneNumberAndUserIdNot(phoneNumber, userId)) {
+                errors.put("phoneNumber", "Số điện thoại đã tồn tại.");
+            }
+        }
+
+        return errors;
     }
 }
 

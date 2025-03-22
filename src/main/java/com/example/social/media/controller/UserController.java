@@ -153,4 +153,15 @@ public class UserController {
             return  ResponseEntity.ok(new DataResponse(200 , userResponse.get() , "Get info user success"));
         return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DataResponse(404 , null ,"Not found"));
     }
+
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateUser(@RequestParam(defaultValue = "0") String userId , @RequestBody UserUpdateRequest user) {
+        System.out.println("user id : " + userId);
+        Map<String, String> errors = service.validateUserFields(Integer.parseInt(userId),user.getUserName(), user.getEmail(), user.getPhoneNumber());
+
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
+        return ResponseEntity.ok("Hợp lệ, có thể đăng ký.");
+    }
 }
