@@ -64,6 +64,14 @@ public class PostController {
                 .data(pageResponse)
                 .build();
     }
+    @GetMapping("/{postId}")
+    public DataResponse<PostResponseDTO> getPostResponseDTOById(@PathVariable int postId) {
+        PostResponseDTO postResponseDTO = postService.getPostResponseDTOById(postId);
+        return DataResponse.<PostResponseDTO>builder()
+                .message("Lay bai post by id")
+                .data(postResponseDTO)
+                .build();
+    }
 
     @GetMapping("/user/{userId}")
     public DataResponse<PageResponse<PostResponseDTO>> getPostsByUserId(

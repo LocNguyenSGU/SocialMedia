@@ -17,6 +17,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> , JpaSpecif
     Page<Post> findAll(Pageable pageable);
     Page<Post> findByUser_UserId(Pageable pageable,int userId);
 
+//    Post findById(int postId);
+
 
     @Query("SELECT DATE(p.createdAt) as date, " +
             "COUNT(p) as postCount FROM Post p " +

@@ -45,7 +45,7 @@ public class CommentServiceImpl implements CommentService {
     CommentMapper mapper;
     UserRepository userRepository;
     CommentCloserRepository commentCloserRepository;
-    PostRepository postRepository;
+//    PostRepository postRepository;
 
     @Value("${forbidden.words:}")
     @NonFinal
