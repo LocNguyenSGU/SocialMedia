@@ -11,10 +11,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/post_emotions")
@@ -31,5 +33,33 @@ public class PostEmotionController {
                 .data(responseDTO)
                 .message("Tao moi cam xuc bai post")
                 .build();
+    }
+
+    //statistics
+    @GetMapping("/statistics/daily")
+    public ResponseEntity<DataResponse> getDailyPostEmotionsStatistics() {
+        List<Map<String, Object>> data = postEmotionService.getPostEmotionsStatisticsPerDay();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu tương tác bài viết trong ngày."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng tương tác bài viết theo ngày."));
+    }
+
+    @GetMapping("/statistics/monthly")
+    public ResponseEntity<DataResponse> getMonthlyPostEmotionsStatistics() {
+        List<Map<String, Object>> data = postEmotionService.getPostEmotionsStatisticsPerMonth();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu tương tác bài viết trong tháng."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng tương tác bài viết theo tháng."));
+    }
+
+    @GetMapping("/statistics/yearly")
+    public ResponseEntity<DataResponse> getYearlyPostEmotionsStatistics() {
+        List<Map<String, Object>> data = postEmotionService.getPostEmotionsStatisticsPerYear();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu tương tác bài viết trong năm."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng tương tác bài viết theo năm."));
     }
 }

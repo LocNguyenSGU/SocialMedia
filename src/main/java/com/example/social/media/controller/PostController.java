@@ -1,12 +1,13 @@
 package com.example.social.media.controller;
 
+import com.example.social.media.entity.Post;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.common.PageResponse;
-import com.example.social.media.payload.request.CommentDTO.CommentCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
-import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
+import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
+import com.example.social.media.payload.response.PostDTO.TopPostResponseDTO;
 import com.example.social.media.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
@@ -14,11 +15,18 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/posts")
@@ -70,6 +78,7 @@ public class PostController {
                 .data(pageResponse)
                 .build();
     }
+
     @PutMapping("/{postId}")
     public DataResponse<PostResponseDTO> update(@PathVariable int postId, @Valid @RequestBody PostUpdateRequestDTO requestDTO) {
         PostResponseDTO response = postService.updatePost(postId, requestDTO);
@@ -78,5 +87,69 @@ public class PostController {
                 .data(response)
                 .message("Sua bai post")
                 .build();
+    }
+
+    @GetMapping("/check/{postId}")
+    public DataResponse<String> checkPostContent(@PathVariable("postId") int postId) {
+            String result = postService.deletePost(postId);
+            return DataResponse.<String>builder()
+                    .data(result)
+                    .message("check bai post")
+                    .build();
+    }
+
+    @GetMapping("/public/paginated")
+    public ResponseEntity<Page<PostResponseDTO>> getPublicPostsPaginated(
+            @ModelAttribute ListRequest request) {
+        Page<PostResponseDTO> posts = postService.findByVisibility(request);
+        return ResponseEntity.ok(posts);
+    }
+
+    //statistics
+    @GetMapping("/statistics/daily")
+    public ResponseEntity<DataResponse> getDailyPostStatistics() {
+        List<Map<String, Object>> data = postService.getPostStatisticsPerDay();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu bài viết trong ngày."));
+        } else {
+            return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bài viết theo ngày."));
+        }
+    }
+
+    @GetMapping("/statistics/monthly")
+    public ResponseEntity<DataResponse> getMonthlyPostStatistics() {
+        List<Map<String, Object>> data = postService.getPostStatisticsPerMonth();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu bài viết trong tháng."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bài viết theo tháng."));
+    }
+
+    @GetMapping("/statistics/yearly")
+    public ResponseEntity<DataResponse> getYearlyPostStatistics() {
+        List<Map<String, Object>> data = postService.getPostStatisticsPerYear();
+        if (data.isEmpty()) {
+            return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu bài viết trong năm."));
+        }
+        return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng bài viết theo năm."));
+    }
+
+    @GetMapping("/statistics/top-interaction-by-timeframe")
+    public ResponseEntity<DataResponse> getTop5PostsByTimeFrame(
+            @RequestParam("timeFrame") String timeFrame,
+            @RequestParam(value = "week", required = false) Integer week,
+            @RequestParam(value = "month", required = false) Integer month,
+            @RequestParam("year") Integer year) {
+        try {
+            List<TopPostResponseDTO> topPosts = postService.getTop5PostsByTimeFrame(timeFrame, week, month, year);
+            if (topPosts.isEmpty()) {
+                return ResponseEntity.ok(new DataResponse(204, null, "No posts found for the given time frame."));
+            }
+            return ResponseEntity.ok(new DataResponse(200, topPosts, "Top 3 posts by interaction retrieved successfully."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new DataResponse(400, null, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new DataResponse(500, null, "Internal server error: " + e.getMessage()));
+        }
     }
 }

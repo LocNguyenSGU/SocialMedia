@@ -17,6 +17,11 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -41,5 +46,33 @@ public class PostEmotionServiceImpl implements PostEmotionService {
         PostEmotionResponseDTO responseDTO = postEmotionMapper.toPostEmotionResponseDTO(postEmotionSaved);
 
         return responseDTO;
+    }
+
+    //Statistics
+    @Override
+    public List<Map<String, Object>> getPostEmotionsStatisticsPerDay() {
+        return convertToMapList(postEmotionRepository.countPostEmotionsPerDay(), "date", "count");
+    }
+
+    @Override
+    public List<Map<String, Object>> getPostEmotionsStatisticsPerMonth() {
+        return convertToMapList(postEmotionRepository.countPostEmotionsPerMonth(), "year", "month", "count");
+    }
+
+    @Override
+    public List<Map<String, Object>> getPostEmotionsStatisticsPerYear() {
+        return convertToMapList(postEmotionRepository.countPostEmotionsPerYear(), "year", "count");
+    }
+
+    private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> data = new HashMap<>();
+            for (int i = 0; i < keys.length; i++) {
+                data.put(keys[i], row[i]);
+            }
+            dataList.add(data);
+        }
+        return dataList;
     }
 }
