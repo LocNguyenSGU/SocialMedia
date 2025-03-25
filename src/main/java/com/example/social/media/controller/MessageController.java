@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -22,9 +23,11 @@ import java.util.List;
 @RequestMapping("/messages")
 public class MessageController {
     private MessageService messageService;
+    private SimpMessagingTemplate messagingTemplate;
     @Autowired
-    public MessageController(MessageService messageService){
+    public MessageController(MessageService messageService, SimpMessagingTemplate messagingTemplate){
         this.messageService = messageService;
+        this.messagingTemplate = messagingTemplate;
     }
     @GetMapping("/{idUser}/{idConversation}")
     public ResponseEntity<DataResponse> getMessageByidUser_idConversation(@PathVariable int idUser,
@@ -66,6 +69,8 @@ public class MessageController {
             MessageDTO mesDTO = MessageMapper.mapToDTO(message);
             dataResponse.setData(mesDTO);
             dataResponse.setMessage("send message successfully");
+            String destination = "/topic/conversation/" + message.getConversationId().getConversationId();
+            messagingTemplate.convertAndSend(destination, mesDTO);
         } else {
             dataResponse.setStatusCode(404);
             dataResponse.setData(null);
