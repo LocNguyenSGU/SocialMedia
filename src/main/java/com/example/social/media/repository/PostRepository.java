@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface PostRepository extends JpaRepository<Post, Integer> , JpaSpecificationExecutor<Post> {
     Page<Post> findAll(Pageable pageable);
     Page<Post> findByUser_UserId(Pageable pageable,int userId);
+    Post findByPostId(long postId);
 }

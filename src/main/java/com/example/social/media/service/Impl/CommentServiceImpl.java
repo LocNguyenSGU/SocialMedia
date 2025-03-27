@@ -2,6 +2,7 @@ package com.example.social.media.service.Impl;
 
 import com.example.social.media.entity.Comment;
 import com.example.social.media.entity.CommentCloser;
+import com.example.social.media.entity.Post;
 import com.example.social.media.entity.User;
 import com.example.social.media.exception.AppException;
 import com.example.social.media.exception.ErrorCode;
@@ -12,6 +13,7 @@ import com.example.social.media.payload.request.CommentDTO.CommentUpdateRequest;
 import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
 import com.example.social.media.repository.CommentCloserRepository;
 import com.example.social.media.repository.CommentRepository;
+import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.CommentService;
 import lombok.AccessLevel;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -35,10 +38,17 @@ public class CommentServiceImpl implements CommentService {
     CommentMapper mapper;
     UserRepository userRepository;
     CommentCloserRepository commentCloserRepository;
+    PostRepository postRepository;
 
     @Override
     public CommentResponseDTO create(CommentCreateRequest request) {
+
+        Post post = postRepository.findByPostId(request.getPostId()) ;
+        User user = userRepository.findById(Math.toIntExact(request.getUserId())).orElseThrow();
+
         var comment = mapper.toComment(request);
+        comment.setPost(post);
+        comment.setUser(user);
         comment = repository.save(comment);
         return mapper.toCommentResponseDto(comment);
     }
@@ -88,5 +98,22 @@ public class CommentServiceImpl implements CommentService {
                 orElseThrow(() -> new AppException(ErrorCode.MESSAGE_NOT_EXITED));
 
         return mapper.toCommentResponseDto(comment);
+    }
+
+    @Override
+    public List<CommentResponseDTO> getCommentCloser(Integer parentId , Integer postId) {
+        Comment commentParent = repository.findById(parentId)
+                .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+
+        var listCommentDecent = commentCloserRepository.findDescendentByAncestor(commentParent);
+        List<CommentResponseDTO> list = new ArrayList<>();
+
+        listCommentDecent.forEach(comment -> {
+            if (comment.getDescendant().getPost().getPostId() == postId) {
+                list.add(mapper.toCommentResponseDto(comment.getDescendant()));
+            }
+        });
+
+        return list;
     }
 }

@@ -5,15 +5,18 @@ import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.CommentDTO.CommentCreateRequest;
 import com.example.social.media.payload.request.CommentDTO.CommentUpdateRequest;
 import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
-import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+@Slf4j
 @RestController
 @RequestMapping("/comments")
 @FieldDefaults(level = AccessLevel.PRIVATE , makeFinal = true)
@@ -34,6 +37,18 @@ public class CommentController {
                 .data(pageResponse)
                 .build();
 
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @GetMapping("/comment_closer/{parentId}/{postId}")
+    public DataResponse<List<CommentResponseDTO>> getDescendant(
+            @PathVariable("parentId") int parentId,
+            @PathVariable("postId") int postId
+    ){
+        log.info("Get Descendant:" + parentId);
+        return DataResponse.<List<CommentResponseDTO>>builder()
+                .data(service.getCommentCloser(parentId , postId))
+                .build();
     }
 
     @PostMapping

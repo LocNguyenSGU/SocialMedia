@@ -115,11 +115,17 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
         );
+
+        User user = userRepository.findByUserName(authRequest.getUsername());
+
         if (authentication.isAuthenticated()) {
             UserDetails userDetails = service.loadUserByUsername(authRequest.getUsername());
+
+
             return  new AuthenticationResponse().builder()
                      .authenticated(true)
                      .token(jwtService.generateToken(userDetails))
+                     .userId(user.getUserId())
                      .build();
 
         } else {

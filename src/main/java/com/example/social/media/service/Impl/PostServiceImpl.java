@@ -7,6 +7,7 @@ import com.example.social.media.entity.User;
 import com.example.social.media.enumm.MediaTypeEnum;
 import com.example.social.media.exception.AppException;
 import com.example.social.media.exception.ErrorCode;
+import com.example.social.media.mapper.CommentMapper;
 import com.example.social.media.mapper.PostMapper;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
@@ -33,12 +34,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class PostServiceImpl implements PostService {
+    CommentMapper commentMapper;
     PostRepository postRepository;
     PostMapper postMapper;
     UserRepository userRepository; // phai la goi thong qua user service -- cai nay de tam thoi
@@ -94,6 +97,18 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
         Page<Post> posts = postRepository.findAll(pageable);
         Page<PostResponseDTO> postDTOs = posts.map(postMapper::toPostResponseDTO);
+        postDTOs.forEach(postDTO -> {
+            posts.stream()
+                    .filter(post -> post.getPostId() == postDTO.getPostId()) // Tìm post tương ứng
+                    .findFirst()
+                    .ifPresent(post -> postDTO.setComments(
+                            post.getCommentList()
+                                    .stream()
+                                    .map(commentMapper::toCommentResponseDto)
+                                    .collect(Collectors.toList())
+                    ));
+        });
+        ;
         return new PageResponse<>(postDTOs);
     }
 
