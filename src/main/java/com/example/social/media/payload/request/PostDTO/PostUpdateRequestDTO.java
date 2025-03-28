@@ -21,4 +21,5 @@ public class PostUpdateRequestDTO {
     @NotNull(message = "Trạng thái hiển thị không được để trống")
     @ValidEnum(enumClass = PostVisibilityEnum.class)
     PostVisibilityEnum visibility;
+    private boolean removeOldMedia;
 }
