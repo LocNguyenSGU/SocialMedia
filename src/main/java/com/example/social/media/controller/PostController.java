@@ -56,11 +56,12 @@ public class PostController {
     public DataResponse<PageResponse<PostResponseDTO>> getPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "desc") String sort
+            @RequestParam(defaultValue = "desc") String sort,
+            @RequestParam(defaultValue = "") String search
     ) {
-        PageResponse<PostResponseDTO> pageResponse = postService.getPosts(page, size, sort);
+        PageResponse<PostResponseDTO> pageResponse = postService.getPosts(page, size, sort, search);
         return DataResponse.<PageResponse<PostResponseDTO>>builder()
-                .message("Lay danh sach bai post")
+                .message("Lay danh sach bai post co tim kiem theo content")
                 .data(pageResponse)
                 .build();
     }
@@ -87,13 +88,23 @@ public class PostController {
                 .build();
     }
 
-    @PutMapping("/{postId}")
-    public DataResponse<PostResponseDTO> update(@PathVariable int postId, @Valid @RequestBody PostUpdateRequestDTO requestDTO) {
-        PostResponseDTO response = postService.updatePost(postId, requestDTO);
-        log.info("API Response: {}", response); // Kiểm tra dữ liệu trước khi trả về
+    @PutMapping(value = "/{postId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public DataResponse<PostResponseDTO> update(
+            @PathVariable int postId,
+            @RequestPart("postUpdateRequest") String postUpdateRequest,
+            @RequestPart(value = "newFiles", required = false) MultipartFile[] newFiles
+    ) throws IOException {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        PostUpdateRequestDTO postUpdateRequestDTO = objectMapper.readValue(postUpdateRequest, PostUpdateRequestDTO.class);
+
+        // Gọi service để update bài post
+        PostResponseDTO response = postService.updatePost(postId, postUpdateRequestDTO, newFiles);
+        log.info("API Response: {}", response);
+
         return DataResponse.<PostResponseDTO>builder()
                 .data(response)
-                .message("Sua bai post")
+                .message("Sửa bài post thành công")
                 .build();
     }
 

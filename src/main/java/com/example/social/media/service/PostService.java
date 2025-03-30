@@ -17,7 +17,7 @@ import java.util.Map;
 
 public interface PostService {
     PostResponseDTO createPost(PostCreateRequest postCreateRequest,  MultipartFile[] files) throws IOException;
-    PageResponse<PostResponseDTO> getPosts(int page, int size, String sortDirection);
+    PageResponse<PostResponseDTO> getPosts(int page, int size, String sortDirection, String search);
     Post getPostById(int postId);
     PostResponseDTO getPostResponseDTOById(int postId);
     PageResponse<PostResponseDTO> getPostsByUserId(int page, int size, String sortDirection, int userId);
@@ -26,7 +26,7 @@ public interface PostService {
 
     void updateTotalNumberElementPost(String type, int postId);
 
-    PostResponseDTO updatePost(int postId, PostUpdateRequestDTO postUpdateRequestDTO);
+    PostResponseDTO updatePost(int postId, PostUpdateRequestDTO postUpdateRequest, MultipartFile[] newFiles) throws IOException;
 
     List<Map<String, Object>> getPostStatisticsPerDay();
     List<Map<String, Object>> getPostStatisticsPerMonth();

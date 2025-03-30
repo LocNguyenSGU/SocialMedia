@@ -14,9 +14,11 @@ import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
 import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.payload.response.PostDTO.TopPostResponseDTO;
+import com.example.social.media.repository.PostMediaRepository;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.CloudinaryService;
+import com.example.social.media.service.PostMediaService;
 import com.example.social.media.service.PostService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -47,6 +50,7 @@ public class PostServiceImpl implements PostService {
     PostMapper postMapper;
     UserRepository userRepository; // phai la goi thong qua user service -- cai nay de tam thoi
     CloudinaryService cloudinaryService;
+    PostMediaService postMediaService;
 
     @Value("${forbidden.words:}")
     @NonFinal
@@ -97,19 +101,18 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PageResponse<PostResponseDTO> getPosts(int page, int size, String sortDirection) {
+    public PageResponse<PostResponseDTO> getPosts(int page, int size, String sortDirection, String search) {
         Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
-        Page<Post> posts = postRepository.findAll(pageable);
+        Page<Post> posts = postRepository.searchPosts(search, pageable);
         Page<PostResponseDTO> postDTOs = posts.map(postMapper::toPostResponseDTO);
         return new PageResponse<>(postDTOs);
     }
 
     @Override
     public Post getPostById(int postId) {
-        Post post = postRepository.findById(postId).orElseThrow(
+        return postRepository.findById(postId).orElseThrow(
                 () -> new RuntimeException("Post not found with ID: " + postId));
-        return post;
     }
 
     @Override
@@ -144,15 +147,65 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    @Override
-    public PostResponseDTO updatePost(int postId, PostUpdateRequestDTO postUpdateRequestDTO) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Khong co post id " + postId));
-        post.setVisibility(postUpdateRequestDTO.getVisibility());
-        post.setContent(postUpdateRequestDTO.getContent());
-        post.setUpdatedAt(LocalDateTime.now());
-        Post postUpdated =  postRepository.save(post);
+//    @Override
+//    public PostResponseDTO updatePost(int postId, PostUpdateRequestDTO postUpdateRequestDTO) {
+//        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Khong co post id " + postId));
+//        post.setVisibility(postUpdateRequestDTO.getVisibility());
+//        post.setContent(postUpdateRequestDTO.getContent());
+//        post.setUpdatedAt(LocalDateTime.now());
+//        Post postUpdated =  postRepository.save(post);
+//
+//        return postMapper.toPostResponseDTO(postUpdated);
+//    }
 
-        return postMapper.toPostResponseDTO(postUpdated);
+    @Override
+    @Transactional
+    public PostResponseDTO updatePost(int postId, PostUpdateRequestDTO postUpdateRequest, MultipartFile[] newFiles) throws IOException {
+        // Kiểm tra xem bài post có tồn tại không
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
+
+        // Cập nhật nội dung bài viết
+        post.setContent(postUpdateRequest.getContent());
+        post.setVisibility(postUpdateRequest.getVisibility());
+
+        // Xử lý danh sách media nếu có file mới
+        if (newFiles != null && newFiles.length > 0) {
+            // Xóa media cũ nếu được yêu cầu
+            if (postUpdateRequest.isRemoveOldMedia()) {
+                postMediaService.deleteAllMediaByPost(post);
+                post.getPostMediaList().clear();
+            }
+
+            List<PostMedia> postMediaList = new ArrayList<>();
+            int order = 1;
+
+            for (MultipartFile file : newFiles) {
+                Map<String, String> uploadResult = cloudinaryService.uploadFile(file);
+                String mediaType = Optional.ofNullable(uploadResult.get("type")).orElse("").toLowerCase();
+                MediaTypeEnum typeEnum = mediaType.startsWith("image") ? MediaTypeEnum.IMAGE : MediaTypeEnum.VIDEO;
+
+                // Thêm media mới
+                PostMedia postMedia = new PostMedia();
+                postMedia.setPost(post);
+                postMedia.setOrder(order++);
+                postMedia.setMediaUrl(uploadResult.get("url"));
+                postMedia.setMediaType(typeEnum);
+                postMediaList.add(postMedia);
+            }
+
+            post.getPostMediaList().addAll(postMediaList);
+        }
+
+        // Lưu bài post đã cập nhật
+        post = postRepository.save(post);
+        log.info("Updated post: {}", post);
+
+        // Trả về DTO
+        PostResponseDTO responseDTO = postMapper.toPostResponseDTO(post);
+        log.info("Updated Response DTO: {}", responseDTO);
+
+        return responseDTO;
     }
 
     //Statistics

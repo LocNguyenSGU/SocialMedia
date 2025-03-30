@@ -17,8 +17,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> , JpaSpecif
     Page<Post> findAll(Pageable pageable);
     Page<Post> findByUser_UserId(Pageable pageable,int userId);
 
-//    Post findById(int postId);
+    Optional<Post> findById(int postId);
 
+    @Query("SELECT p FROM Post p WHERE p.visibility <> 'DELETE' AND LOWER(p.content) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<Post> searchPosts(@Param("search") String search, Pageable pageable);
 
     @Query("SELECT DATE(p.createdAt) as date, " +
             "COUNT(p) as postCount FROM Post p " +
