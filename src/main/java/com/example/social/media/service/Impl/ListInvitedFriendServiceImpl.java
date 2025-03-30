@@ -132,4 +132,11 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
                                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invite not exist"));
         return listInvitedFriendMapper.toListInvitedFriendResponseDTO(listInvitedFriend);
     }
+
+    @Override
+    public int filterReceiverAndSender(int senderId, int receiverId){
+        ListInvitedFriend listInvitedFriend = listInvitedFriendRepository.filterReceiverAndSender(senderId , receiverId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invite not exist"));
+        return listInvitedFriend.getListInvitedFriendId();
+    }
 }

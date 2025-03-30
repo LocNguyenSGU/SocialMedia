@@ -61,11 +61,19 @@ public class FriendController {
                 .build();
     }
 
-    @DeleteMapping("/{id}")
-    public DataResponse<FriendResponseDTO> delete(@PathVariable("id") int id){
+    @DeleteMapping("/deleteFriend")
+    public DataResponse<FriendResponseDTO> delete(@RequestParam int userId, @RequestParam int friendId){
+        int id =  friendService.idFriend(userId, friendId);
+        if(id == 0)
+            return DataResponse.<FriendResponseDTO>builder()
+                    .data(null)
+                    .message("2 người không phải bạn bè")
+                    .statusCode(400)
+                    .build();
         return DataResponse.<FriendResponseDTO>builder()
                 .data(friendService.delete(id))
                 .message("xoá thành công")
+                .statusCode(200)
                 .build();
     }
 

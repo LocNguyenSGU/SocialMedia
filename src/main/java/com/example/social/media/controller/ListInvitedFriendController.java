@@ -1,6 +1,7 @@
 package com.example.social.media.controller;
 
 
+import com.example.social.media.entity.ListInvitedFriend;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.request.ListInvitedFriend.ListInvitedFriendCreateRequest;
 import com.example.social.media.payload.request.ListInvitedFriend.ListInvitedFriendUpdateRequest;
@@ -56,9 +57,10 @@ public class ListInvitedFriendController {
                 .build();
     }
 
-    @PutMapping("/{id}")
-    public DataResponse<ListInvitedFriendResponseDTO> update(@Valid @RequestBody ListInvitedFriendUpdateRequest request , @PathVariable("id") int id){
-            String mess = null ;
+    @PutMapping("/update")
+    public DataResponse<ListInvitedFriendResponseDTO> update(@Valid @RequestBody ListInvitedFriendUpdateRequest request , @RequestParam int senderId, @RequestParam int receiverId){
+       int id = listInvitedFriendService.filterReceiverAndSender(senderId ,receiverId);
+        String mess = null ;
                 mess = request.getStatus().name().equals("ACCEPT") ? "Chấp nhận lời mời kết bạn" : null ;
                 mess = request.getStatus().name().equals("CANCLE") ? "Đã huỷ lời mời kết bạn" : null;
                 mess =  request.getStatus().name().equals("DENY") ?  "Đã từ chối lời mời kết bạn" : null;

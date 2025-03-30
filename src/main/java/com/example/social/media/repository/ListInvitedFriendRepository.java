@@ -18,4 +18,7 @@ public interface ListInvitedFriendRepository extends JpaRepository<ListInvitedFr
     List<ListInvitedFriend> getListByReceiverId(@Param("receiverId") Integer receiverId);
     @Query("select l from ListInvitedFriend l where (l.receiver.userId = :receiverId AND l.sender.userId = :senderId AND l.status = 'SENT') OR (l.receiver.userId = :senderId AND l.sender.userId = :receiverId AND l.status = 'SENT')")
     Optional<ListInvitedFriend> filterReceiverAndSenderExist(@Param("receiverId") Integer receiverId , @Param("senderId") Integer senderId);
+
+    @Query("select l from ListInvitedFriend l where (l.receiver.userId = :receiverId AND l.sender.userId = :senderId AND l.status = 'SENT') ")
+    Optional<ListInvitedFriend> filterReceiverAndSender( @Param("senderId") Integer senderId  ,@Param("receiverId") Integer receiverId);
 }

@@ -114,4 +114,12 @@ public class FriendServiceImpl implements FriendService {
         return friendRepository.existsByUserIdAndFriendId(userId , friendId);
     }
 
+    @Override
+    public int idFriend(int userId, int friendId) {
+        Friend friend = friendRepository.findFriendByUserIds(userId , friendId) ;
+        if(friend == null)
+            return 0 ;
+        return friend.getFriendId() ;
+    }
+
 }

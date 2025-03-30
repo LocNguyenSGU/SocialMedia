@@ -14,4 +14,5 @@ public interface FriendService {
     public List<FriendResponseDTO> getDsFriendsBlockByUser(int userId);
     public List<FriendResponseDTO> searchFriends(int userId , String keyword) ;
     public boolean isFriend(int userId , int friendId);
+    public int idFriend(int userId , int friendId) ;
 }
