@@ -13,9 +13,11 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/friend")
@@ -66,4 +68,11 @@ public class FriendController {
                 .message("xoá thành công")
                 .build();
     }
+
+    @GetMapping("/isFriend")
+    public ResponseEntity<Map<String, Boolean>> checkFriendship(@RequestParam int userId, @RequestParam int friendId) {
+        boolean isFriend = friendService.isFriend(userId ,  friendId);
+        return ResponseEntity.ok(Map.of("isFriend", isFriend));
+    }
+
 }

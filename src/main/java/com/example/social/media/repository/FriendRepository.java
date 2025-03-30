@@ -33,7 +33,8 @@ public interface FriendRepository extends JpaRepository<Friend , Integer> {
     List<Friend> searchFriends(@Param("userId") int UserId,
                                @Param("keyword") String keyword);
 
-    @Query("SELECT COUNT(f) > 0 FROM Friend f WHERE f.user.id = :userId AND f.friend.id = :friendId")
+    @Query("SELECT COUNT(f) > 0 FROM Friend f WHERE (f.user.id = :userId AND f.friend.id = :friendId) OR (f.user.id = :friendId AND f.friend.id = :userId)")
     boolean existsByUserIdAndFriendId(@Param("userId") int userId, @Param("friendId") int friendId);
+
 
 }

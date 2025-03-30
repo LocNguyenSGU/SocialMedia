@@ -11,9 +11,13 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/listinvitedfriend")
@@ -62,6 +66,7 @@ public class ListInvitedFriendController {
         return DataResponse.<ListInvitedFriendResponseDTO>builder()
                 .data(listInvitedFriendService.upadte(request , id))
                 .message(mess)
+                .statusCode(200)
                 .build();
     }
 
@@ -78,5 +83,23 @@ public class ListInvitedFriendController {
                 .data(listInvitedFriendService.getDsByReceiverId(idReceiver))
                 .message("danh sach nhan loi moi ket ban")
                 .build();
+    }
+
+    @GetMapping("/isSent")
+    public ResponseEntity<Map<String, Object>> checkInvitationStatus(@RequestParam int senderId, @RequestParam int receiverId) {
+        boolean isSent = true;
+        ListInvitedFriendResponseDTO invitedFriendResponse = null;
+        try {
+            invitedFriendResponse = listInvitedFriendService.filterReceiverAndSenderExist(senderId, receiverId);
+        } catch (ResponseStatusException e) {
+            isSent = false;
+            invitedFriendResponse = null;
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("isSent", isSent); // someVariable có thể là null
+        result.put("data", invitedFriendResponse);
+
+        return ResponseEntity.ok(result);
     }
 }

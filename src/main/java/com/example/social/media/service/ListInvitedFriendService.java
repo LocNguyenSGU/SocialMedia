@@ -11,4 +11,5 @@ public interface ListInvitedFriendService {
     public ListInvitedFriendResponseDTO upadte(ListInvitedFriendUpdateRequest request , int id );
     public List<ListInvitedFriendResponseDTO> getDsBySenderId(int senderId) ;
     public List<ListInvitedFriendResponseDTO> getDsByReceiverId(int receiverId) ;
+    public ListInvitedFriendResponseDTO filterReceiverAndSenderExist(int senderId , int receiverId) ;
 }
