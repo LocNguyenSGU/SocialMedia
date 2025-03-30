@@ -2,12 +2,14 @@ package com.example.social.media.controller;
 
 import com.example.social.media.entity.Post;
 import com.example.social.media.payload.common.DataResponse;
+import com.example.social.media.payload.common.FakeNews;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
 import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.payload.response.PostDTO.TopPostResponseDTO;
+import com.example.social.media.service.OpenAIService;
 import com.example.social.media.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
@@ -35,6 +37,7 @@ import java.util.Map;
 @Slf4j
 public class PostController {
     PostService postService;
+    OpenAIService openAIService;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public DataResponse<PostResponseDTO> create(
@@ -170,5 +173,10 @@ public class PostController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new DataResponse(500, null, "Internal server error: " + e.getMessage()));
         }
+    }
+
+    @PostMapping("/check-fake-news/{postId}")
+    public ResponseEntity<DataResponse<List<FakeNews>>> checkFakeNews(@PathVariable int postId) throws Exception {
+        return ResponseEntity.ok(new DataResponse<>(200, postService.checkFakeNews(postId), "Kiem duyet noi dung bai post"));
     }
 }

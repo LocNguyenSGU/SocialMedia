@@ -4,10 +4,12 @@ import com.example.social.media.entity.Post;
 import com.example.social.media.entity.PostMedia;
 import com.example.social.media.entity.User;
 import com.example.social.media.enumm.MediaTypeEnum;
+import com.example.social.media.enumm.PostTypeEnum;
 import com.example.social.media.enumm.PostVisibilityEnum;
 import com.example.social.media.exception.AppException;
 import com.example.social.media.exception.ErrorCode;
 import com.example.social.media.mapper.PostMapper;
+import com.example.social.media.payload.common.FakeNews;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
@@ -18,6 +20,7 @@ import com.example.social.media.repository.PostMediaRepository;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.CloudinaryService;
+import com.example.social.media.service.OpenAIService;
 import com.example.social.media.service.PostMediaService;
 import com.example.social.media.service.PostService;
 import lombok.AccessLevel;
@@ -51,6 +54,7 @@ public class PostServiceImpl implements PostService {
     UserRepository userRepository; // phai la goi thong qua user service -- cai nay de tam thoi
     CloudinaryService cloudinaryService;
     PostMediaService postMediaService;
+    OpenAIService openAIService;
 
     @Value("${forbidden.words:}")
     @NonFinal
@@ -117,7 +121,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseDTO getPostResponseDTOById(int postId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Khong co post id " + postId));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
         return postMapper.toPostResponseDTO(post);
     }
 
@@ -137,7 +141,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void updateTotalNumberElementPost(String type, int postId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Khong co post id " + postId));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
         if(type.equalsIgnoreCase("comment"))
             post.setNumberComment(post.getNumberComment() + 1);
         else if (type.equalsIgnoreCase("share"))
@@ -145,6 +149,23 @@ public class PostServiceImpl implements PostService {
         else if (type.equalsIgnoreCase("emotion")) {
             post.setNumberEmotion(post.getNumberEmotion() + 1);
         }
+    }
+
+    @Override
+    public void updateTotalNumberElementPost_AndSave(String type, int postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
+
+        if (type.equalsIgnoreCase("comment")) {
+            post.setNumberComment(post.getNumberComment() + 1);
+        } else if (type.equalsIgnoreCase("share")) {
+            post.setNumberShare(post.getNumberShare() + 1);
+        } else if (type.equalsIgnoreCase("emotion")) {
+            post.setNumberEmotion(post.getNumberEmotion() + 1);
+        }
+
+        // Lưu thay đổi vào database
+        postRepository.save(post);
     }
 
 //    @Override
@@ -321,6 +342,15 @@ public class PostServiceImpl implements PostService {
                 Sort.by(request.getSort()).descending());
         return postRepository.findByVisibility(PostVisibilityEnum.PUBLIC, pageable)
                 .map(postMapper::toPostResponseDTO);
+    }
+
+    @Override
+    public List<FakeNews> checkFakeNews(int postId) throws Exception {
+        PostResponseDTO postResponseDTO =  getPostResponseDTOById(postId);
+        if(!postResponseDTO.getTypePost().equals(PostTypeEnum.TEXT))
+            throw new AppException(ErrorCode.BAD_REQUEST_FAKE_NEWS);
+
+        return openAIService.moderatePostContent(postResponseDTO.getContent());
     }
 
     private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {

@@ -15,6 +15,7 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1000 , "User not found" , HttpStatus.NOT_FOUND),
     MESSAGE_NOT_EXITED(1001 , "Message not found" , HttpStatus.NOT_FOUND),
     POST_NOT_EXISTED(8000 , "Post not found" , HttpStatus.NOT_FOUND),
+    BAD_REQUEST_FAKE_NEWS(8002, "Post khong co content o dang chu, khong kiem tra duoc",HttpStatus.BAD_REQUEST)
     ;
 
 

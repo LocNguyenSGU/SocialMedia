@@ -44,7 +44,7 @@ public class PostEmotionServiceImpl implements PostEmotionService {
 
         PostEmotion postEmotionSaved = postEmotionRepository.save(postEmotion);
         PostEmotionResponseDTO responseDTO = postEmotionMapper.toPostEmotionResponseDTO(postEmotionSaved);
-
+        postService.updateTotalNumberElementPost_AndSave("comment", request.getPostId());
         return responseDTO;
     }
 
