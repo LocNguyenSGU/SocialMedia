@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
         user.setLastName(request.getLastName() != null ? request.getLastName().trim() : user.getLastName());
         user.setEmail(request.getEmail() != null ? request.getEmail().trim() : user.getEmail());
         user.setPhoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber().trim() : user.getPhoneNumber());
-
+        user.setPassword(request.getPassword() != null ? request.getPassword().trim() : user.getPassword());
         userRepository.save(user);
         return Optional.of(userMapper.toDto(user));
     }
