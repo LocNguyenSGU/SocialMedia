@@ -7,8 +7,6 @@ import com.example.social.media.payload.request.CommentDTO.CommentUpdateRequest;
 import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
 import org.mapstruct.*;
 
-import java.util.Optional;
-
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
     Comment toComment(CommentCreateRequest request);

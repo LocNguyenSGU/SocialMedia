@@ -12,10 +12,13 @@ import com.example.social.media.mapper.PostMapper;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
+import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
+import com.example.social.media.repository.CommentRepository;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.CloudinaryService;
+import com.example.social.media.service.CommentService;
 import com.example.social.media.service.PostService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +49,7 @@ public class PostServiceImpl implements PostService {
     PostMapper postMapper;
     UserRepository userRepository; // phai la goi thong qua user service -- cai nay de tam thoi
     CloudinaryService cloudinaryService;
+    CommentService commentService;
 
     @Override
     public PostResponseDTO createPost(PostCreateRequest postCreateRequest, MultipartFile[] files) throws IOException {
@@ -98,17 +102,10 @@ public class PostServiceImpl implements PostService {
         Page<Post> posts = postRepository.findAll(pageable);
         Page<PostResponseDTO> postDTOs = posts.map(postMapper::toPostResponseDTO);
         postDTOs.forEach(postDTO -> {
-            posts.stream()
-                    .filter(post -> post.getPostId() == postDTO.getPostId()) // Tìm post tương ứng
-                    .findFirst()
-                    .ifPresent(post -> postDTO.setComments(
-                            post.getCommentList()
-                                    .stream()
-                                    .map(commentMapper::toCommentResponseDto)
-                                    .collect(Collectors.toList())
-                    ));
+            List<CommentResponseDTO> comments = commentService.getCommentByPostId(postDTO.getPostId());
+            postDTO.setComments(comments);
         });
-        ;
+
         return new PageResponse<>(postDTOs);
     }
 

@@ -15,4 +15,5 @@ public interface CommentService {
     public PageResponse<CommentResponseDTO> getListComment(int page, int size, String sortDirection);
     public CommentResponseDTO getById(int id);
     public List<CommentResponseDTO> getCommentCloser(Integer parentId , Integer postId);
+    public List<CommentResponseDTO> getCommentByPostId(Integer postId);
 }

@@ -59,6 +59,14 @@ public class CommentController {
                 .build();
     }
 
+    @GetMapping("/post/{postId}")
+    @PreAuthorize("hasRole('USER')")
+    public DataResponse<List<CommentResponseDTO>> getByPostId(@PathVariable("postId") int postId){
+        return DataResponse.<List<CommentResponseDTO>>builder()
+                .data(service.getCommentByPostId(postId))
+                .build();
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public DataResponse<CommentResponseDTO> update(@Valid @RequestBody CommentUpdateRequest request ,
