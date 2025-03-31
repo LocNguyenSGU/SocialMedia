@@ -32,5 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 
-# Bỏ file secret khỏi Git
-src/main/resources/secret.properties
+
