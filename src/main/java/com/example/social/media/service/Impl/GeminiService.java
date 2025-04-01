@@ -19,7 +19,7 @@ import java.util.Base64;
 @Service
 public class GeminiService {
     private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
-    private static final String API_KEY = "abc"; // Thay bằng API Key của bạn
+    private static final String API_KEY = "AIzaSyBnbH1Am_QaGKaryFiANDlJGf7U5T_kTns"; // Thay bằng API Key của bạn
 
     public String genCaptionFromImage(MultipartFile file) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
