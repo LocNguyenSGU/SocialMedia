@@ -70,9 +70,13 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail() != null ? request.getEmail().trim() : user.getEmail());
         user.setPhoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber().trim() : user.getPhoneNumber());
 
+        // Lưu thay đổi vào cơ sở dữ liệu
         userRepository.save(user);
+
+        // Trả về đối tượng người dùng đã được cập nhật
         return Optional.of(userMapper.toDto(user));
     }
+
 
 
 

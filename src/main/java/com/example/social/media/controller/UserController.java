@@ -52,11 +52,10 @@ public class UserController {
                     validationErrors.put(error.getField(), error.getDefaultMessage()));
         }
 
+        Optional<UserResponse> updatedUser = Optional.empty();
         try {
             // 2️⃣ Gọi service để cập nhật user, nếu có lỗi thì ném exception
-            Optional<UserResponse> updatedUser = service.updateUserProfile(userId, request);
-
-
+            updatedUser = service.updateUserProfile(userId, request);
 
         } catch (IllegalArgumentException e) {
             // 4️⃣ Bắt lỗi từ UserServiceImpl (VD: username tồn tại, email tồn tại)
@@ -67,6 +66,10 @@ public class UserController {
         }
 
         // 6️⃣ Xử lý phản hồi dựa trên loại lỗi xảy ra
+        if (!updatedUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new DataResponse(404, null, "User not found"));
+        }
 
         if (!validationErrors.isEmpty() && !businessErrors.isEmpty()) {
             // 🔥 Nếu có cả lỗi validation và business
@@ -90,9 +93,10 @@ public class UserController {
                     .body(new DataResponse(400, businessErrors, "Business logic error."));
         }
 
-        // 🔥 Nếu không có lỗi nào, trả về thành công
-        return ResponseEntity.ok(new DataResponse(200, null, "Profile updated successfully!"));
+        // 🔥 Nếu không có lỗi nào, trả về thành công với dữ liệu đã cập nhật
+        return ResponseEntity.ok(new DataResponse(200, updatedUser.get(), "Profile updated successfully!"));
     }
+
 
     @PutMapping("/avatar/{userId}")
     public ResponseEntity<DataResponse> updateAvatar(@PathVariable int userId,
