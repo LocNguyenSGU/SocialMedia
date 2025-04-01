@@ -16,6 +16,7 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Integer> , JpaSpecificationExecutor<Post> {
     Page<Post> findAll(Pageable pageable);
     Page<Post> findByUser_UserId(Pageable pageable,int userId);
+    Post findByPostId(long postId);
 
     Optional<Post> findById(int postId);
 

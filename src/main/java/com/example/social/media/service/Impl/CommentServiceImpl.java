@@ -40,24 +40,19 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
-    private final PostRepository postRepository;
     CommentRepository repository;
     CommentMapper mapper;
     UserRepository userRepository;
     CommentCloserRepository commentCloserRepository;
-//    PostRepository postRepository;
-
-    @Value("${forbidden.words:}")
-    @NonFinal
-    String forbiddenWordsString;
+    PostRepository postRepository;
 
     @Override
     public CommentResponseDTO create(CommentCreateRequest request) {
+
+        Post post = postRepository.findByPostId(request.getPostId()) ;
+        User user = userRepository.findById(Math.toIntExact(request.getUserId())).orElseThrow();
+
         var comment = mapper.toComment(request);
-
-        var post =  postRepository.findById(request.getPostId()).orElseThrow();
-        var user = userRepository.findById(request.getUserId()).orElseThrow();
-
         comment.setPost(post);
         comment.setUser(user);
         comment = repository.save(comment);
@@ -76,17 +71,46 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponseDTO replyToComment(Integer parentId, CommentCreateRequest request) {
+        log.info(request.toString());
+        Post post = postRepository.findByPostId(request.getPostId());
+        User user = userRepository.findById(Math.toIntExact(request.getUserId())).orElseThrow();
+
         Comment parentComment = repository.findById(parentId)
                 .orElseThrow(() -> new RuntimeException("Parent comment not found"));
 
+        // Cập nhật số lượng comment con của parentComment
+        parentComment.setNumberCommentChild(parentComment.getNumberCommentChild() + 1);
+        repository.save(parentComment);
+
+        // Tạo comment mới nhưng chưa lưu ngay
         Comment newComment = mapper.toComment(request);
-        newComment = repository.save(newComment);
-        CommentCloser commentCloser = new CommentCloser();
-        commentCloser.setAncestor(parentComment);
-        commentCloser.setDescendant(newComment);
-        int depth = commentCloserRepository.findDepthByAncestorId(parentId);
-        commentCloser.setDepth(depth+1);
-        commentCloserRepository.save(commentCloser);
+        newComment.setPost(post);
+        newComment.setUser(user);
+
+        // Tạo bản ghi CommentCloser cho quan hệ trực tiếp với parentComment
+        CommentCloser directRelation = new CommentCloser();
+        directRelation.setAncestor(parentComment);
+        directRelation.setDescendant(newComment); // newComment chưa được lưu
+        directRelation.setDepth(1);
+
+        // Tìm tất cả tổ tiên của parentComment và tạo bản ghi cho newComment
+        List<CommentCloser> ancestorRelations = commentCloserRepository.findByDescendant(parentComment);
+        List<CommentCloser> newRelations = new ArrayList<>();
+        for (CommentCloser ancestorRelation : ancestorRelations) {
+            Comment depthParent = repository.findById(ancestorRelation.getAncestor()
+                    .getCommentId()).orElseThrow();
+            depthParent.setNumberCommentChild(depthParent.getNumberCommentChild() + 1);
+            CommentCloser newRelation = new CommentCloser();
+            newRelation.setAncestor(ancestorRelation.getAncestor());
+            newRelation.setDescendant(newComment); // newComment chưa được lưu
+            newRelation.setDepth(ancestorRelation.getDepth() + 1);
+            newRelations.add(newRelation);
+        }
+
+        // Lưu tất cả cùng một transaction
+        newComment = repository.save(newComment); // Lưu comment
+        commentCloserRepository.save(directRelation); // Lưu quan hệ trực tiếp
+        commentCloserRepository.saveAll(newRelations); // Lưu các quan hệ tổ tiên
 
         return mapper.toCommentResponseDto(newComment);
     }
@@ -111,6 +135,37 @@ public class CommentServiceImpl implements CommentService {
         return mapper.toCommentResponseDto(comment);
     }
 
+
+    @Override
+    public List<CommentResponseDTO> getCommentCloser(Integer parentId , Integer postId) {
+        Comment commentParent = repository.findById(parentId)
+                .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+
+        var listCommentDecent = commentCloserRepository.findDescendentByAncestor(commentParent);
+        List<CommentResponseDTO> list = new ArrayList<>();
+
+
+        listCommentDecent.forEach(comment -> {
+            if (comment.getDescendant().getPost().getPostId() == postId && comment.getDepth() == 1 ) {
+                list.add(mapper.toCommentResponseDto(comment.getDescendant()));
+            }
+        });
+
+        return list;
+    }
+
+    @Override
+    public List<CommentResponseDTO> getCommentByPostId(Integer postId) {
+        var listComment = repository.findCommentsByPostId(postId);
+        List<CommentResponseDTO> list = new ArrayList<>();
+        for (Comment comment : listComment) {
+            if (!commentCloserRepository.existsByDescendant(comment)){
+                list.add(mapper.toCommentResponseDto(comment));
+            }
+        }
+        return list;
+    }
+
     //Statistics
     @Override
     public List<Map<String, Object>> getCommentsStatisticsPerDay() {
@@ -125,24 +180,6 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<Map<String, Object>> getCommentsStatisticsPerYear() {
         return convertToMapList(repository.countCommentsPerYear(), "year", "count");
-    }
-
-    @Override
-    public String deleteComment(int id) {
-        Comment comment = repository.findById(id).orElseThrow(() ->
-                new RuntimeException("Comment not existed"));
-
-        String content = comment.getContent().toLowerCase();
-
-        List<String> forbiddenWords = List.of(forbiddenWordsString.split(","));
-        for (String forbiddenWord : forbiddenWords) {
-            if (content.contains(forbiddenWord.trim().toLowerCase())) {
-                repository.delete(comment);
-                return "Comment đã được kiểm tra và xóa cảm ơn bạn";
-            }
-        }
-
-        return "Comment không chứa từ ngữ vi phạm";
     }
 
     @Override
