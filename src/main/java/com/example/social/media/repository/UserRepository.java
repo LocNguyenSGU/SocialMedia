@@ -28,4 +28,6 @@ public interface UserRepository extends JpaRepository<User , Integer>, JpaSpecif
             "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(u.phoneNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<User> searchUsers(@Param("keyword") String keyword , Pageable pageable);
+
+    Page<User> findByUserNameContaining(String keyword, Pageable pageable);
 }

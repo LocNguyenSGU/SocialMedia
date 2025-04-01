@@ -56,4 +56,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> , JpaSpecif
 
     Page<Post> findByVisibility(PostVisibilityEnum visibility, Pageable pageable);
 
+    Page<Post> findByContentContains(String content , Pageable pageable);
+
 }

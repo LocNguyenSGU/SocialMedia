@@ -2,6 +2,8 @@ package com.example.social.media.service.Impl;
 
 import com.example.social.media.entity.Post;
 import com.example.social.media.entity.User;
+import com.example.social.media.mapper.PostMapper;
+import com.example.social.media.mapper.UserMapper;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.SearchRequest.ListSearchRequest;
 import com.example.social.media.payload.response.SeachResult.SearchResultResponse;
@@ -13,41 +15,46 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE , makeFinal = true)
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
-    private final PostRepository postRepository;
+    PostRepository postRepository;
     UserRepository userRepository;
+    UserMapper userMapper;
+    PostMapper postMapper;
 
     @Override
     public PageResponse<SearchResultResponse>  searchAll(ListSearchRequest filterRequest) {
-        Specification<User> userSpec = SearchSpecification.hasUsername(filterRequest.getQuery());
-        Specification<Post> postSpec = SearchSpecification.hasContentPost(filterRequest.getQuery());
 
         var pageRequest = PageRequest.of(filterRequest.getPage() - 1, filterRequest.getPageSize());
 
-        long totalUser = userRepository.count(userSpec);
-        long totalPost = postRepository.count(postSpec);
+        Page<User> userPage = userRepository.findByUserNameContaining(filterRequest.getQuery(), pageRequest);
+        Page<Post> postPage = postRepository.findByContentContains(filterRequest.getQuery(), pageRequest);
+
+        long totalUser = userPage.getTotalElements();
+        long totalPost = postPage.getTotalElements();
         long totalItems = totalUser + totalPost;
 
         List<SearchResultResponse> results = new ArrayList<>();
 
-        results.addAll(userRepository.findAll(userSpec, pageRequest)
-                .stream().map(SearchResultResponse::new).toList());
+        userPage.forEach(user -> {
+            results.add(new SearchResultResponse(userMapper.toDto(user)));
+        });
 
-        results.addAll(postRepository.findAll(postSpec, pageRequest)
-                .stream().map(SearchResultResponse::new).toList());
-
-        log.info(results.toString());
+        postPage.forEach(post -> {
+            results.add(new SearchResultResponse(postMapper.toPostResponseDTO(post)));
+        });
 
         var page = filterRequest.getPage();
         var pageCount = (int) Math.ceil((double) totalItems / filterRequest.getPageSize());
