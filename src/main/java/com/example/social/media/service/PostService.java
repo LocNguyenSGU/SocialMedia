@@ -36,8 +36,6 @@ public interface PostService {
 
     List<TopPostResponseDTO> getTop5PostsByInteraction(LocalDateTime startDate, LocalDateTime endDate);
     List<TopPostResponseDTO> getTop5PostsByTimeFrame(String timeFrame, Integer week, Integer month, Integer year);
-
-    public String deletePost(int id);
     Page<PostResponseDTO> findByVisibility(ListRequest listRequest);
 
     List<FakeNews> checkFakeNews(int postId) throws Exception;

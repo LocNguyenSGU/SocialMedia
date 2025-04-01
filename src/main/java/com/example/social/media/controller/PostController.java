@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +41,7 @@ public class PostController {
     OpenAIService openAIService;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<PostResponseDTO> create(
             @RequestPart(name = "postCreateRequest") String postCreateRequestJson,
             @RequestPart(value = "files", required = false) MultipartFile[] files) throws IOException {
@@ -56,6 +58,7 @@ public class PostController {
                 .build();
     }
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public DataResponse<PageResponse<PostResponseDTO>> getPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -78,6 +81,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public DataResponse<PageResponse<PostResponseDTO>> getPostsByUserId(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -92,6 +96,7 @@ public class PostController {
     }
 
     @PutMapping(value = "/{postId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PreAuthorize("hasRole('USER')")
     public DataResponse<PostResponseDTO> update(
             @PathVariable int postId,
             @RequestPart("postUpdateRequest") String postUpdateRequest,
@@ -109,15 +114,6 @@ public class PostController {
                 .data(response)
                 .message("Sửa bài post thành công")
                 .build();
-    }
-
-    @GetMapping("/check/{postId}")
-    public DataResponse<String> checkPostContent(@PathVariable("postId") int postId) {
-            String result = postService.deletePost(postId);
-            return DataResponse.<String>builder()
-                    .data(result)
-                    .message("check bai post")
-                    .build();
     }
 
     @GetMapping("/public/paginated")
