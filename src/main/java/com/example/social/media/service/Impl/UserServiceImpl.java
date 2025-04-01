@@ -69,8 +69,12 @@ public class UserServiceImpl implements UserService {
         user.setLastName(request.getLastName() != null ? request.getLastName().trim() : user.getLastName());
         user.setEmail(request.getEmail() != null ? request.getEmail().trim() : user.getEmail());
         user.setPhoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber().trim() : user.getPhoneNumber());
+<<<<<<< HEAD
 
         // Lưu thay đổi vào cơ sở dữ liệu
+=======
+        user.setPassword(request.getPassword() != null ? request.getPassword().trim() : user.getPassword());
+>>>>>>> e2a489549529dceb600c951478eeb59e6b154a62
         userRepository.save(user);
 
         // Trả về đối tượng người dùng đã được cập nhật

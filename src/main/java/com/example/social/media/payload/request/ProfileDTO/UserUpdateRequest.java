@@ -54,5 +54,13 @@ public class UserUpdateRequest {
             message = "Phone number must be 10 digits"
     )
     private String phoneNumber;
+
+    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
+    @NotBlank(message = "Password is required")
+    @Pattern(
+            regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$",
+            message = "Password must contain at least one letter and one number"
+    )
+    private String password;
 }
 
