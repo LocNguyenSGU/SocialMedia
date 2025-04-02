@@ -17,6 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EntityListeners(UserListener.class)
 public class User {
 
     @Id

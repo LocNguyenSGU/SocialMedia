@@ -18,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EntityListeners(PostListener.class)
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
