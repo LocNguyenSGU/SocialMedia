@@ -9,20 +9,18 @@ import com.example.social.media.payload.request.SearchRequest.ListSearchRequest;
 import com.example.social.media.payload.response.SeachResult.SearchResultResponse;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
+import com.example.social.media.service.SearchRedisService;
 import com.example.social.media.service.SearchService;
-import com.example.social.media.specification.SearchSpecification;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,39 +31,65 @@ public class SearchServiceImpl implements SearchService {
     UserRepository userRepository;
     UserMapper userMapper;
     PostMapper postMapper;
+    SearchRedisService searchRedisService;
+
 
     @Override
-    public PageResponse<SearchResultResponse>  searchAll(ListSearchRequest filterRequest) {
-
+    public PageResponse<SearchResultResponse> searchAll(ListSearchRequest filterRequest) {
         var pageRequest = PageRequest.of(filterRequest.getPage() - 1, filterRequest.getPageSize());
 
-        Page<User> userPage = userRepository.findByUserNameContaining(filterRequest.getQuery(), pageRequest);
-        Page<Post> postPage = postRepository.findByContentContains(filterRequest.getQuery(), pageRequest);
+        // Try to get results from Redis cache first
+        List<SearchResultResponse> cachedResults = searchRedisService.getSearch(
+                filterRequest.getQuery(),
+                pageRequest
+        );
 
-        long totalUser = userPage.getTotalElements();
-        long totalPost = postPage.getTotalElements();
-        long totalItems = totalUser + totalPost;
+        if (cachedResults != null) {
+            long totalItems = cachedResults.size();
+            int pageCount = (int) Math.ceil((double) totalItems / filterRequest.getPageSize());
 
-        List<SearchResultResponse> results = new ArrayList<>();
+            return PageResponse.<SearchResultResponse>builder()
+                        .data(cachedResults)
+                        .currentPage(filterRequest.getPage())
+                        .totalPage(pageCount)
+                        .pageSize(filterRequest.getPageSize())
+                        .totalElements(totalItems)
+                        .build();
+            }
 
-        userPage.forEach(user -> {
-            results.add(new SearchResultResponse(userMapper.toDto(user)));
-        });
+            // If not in cache, perform the database search
+            Page<User> userPage = userRepository.findByUserNameContaining(filterRequest.getQuery(), pageRequest);
+            Page<Post> postPage = postRepository.findByContentContains(filterRequest.getQuery(), pageRequest);
 
-        postPage.forEach(post -> {
-            results.add(new SearchResultResponse(postMapper.toPostResponseDTO(post)));
-        });
+            long totalUser = userPage.getTotalElements();
+            long totalPost = postPage.getTotalElements();
+            long totalItems = totalUser + totalPost;
 
-        var page = filterRequest.getPage();
-        var pageCount = (int) Math.ceil((double) totalItems / filterRequest.getPageSize());
+            List<SearchResultResponse> results = new ArrayList<>();
 
-        return PageResponse.<SearchResultResponse>builder()
-                .data(results)
-                .currentPage(page)
-                .totalPage(pageCount)
-                .pageSize(filterRequest.getPageSize())
-                .totalElements(totalItems)
-                .build();
+            userPage.forEach(user -> {
+                results.add(new SearchResultResponse(userMapper.toDto(user)));
+            });
 
-    }
+            postPage.forEach(post -> {
+                results.add(new SearchResultResponse(postMapper.toPostResponseDTO(post)));
+            });
+
+            var page = filterRequest.getPage();
+            var pageCount = (int) Math.ceil((double) totalItems / filterRequest.getPageSize());
+
+            // Save results to Redis cache
+            searchRedisService.saveSearch(results, filterRequest.getQuery(), pageRequest);
+
+            return PageResponse.<SearchResultResponse>builder()
+                    .data(results)
+                    .currentPage(page)
+                    .totalPage(pageCount)
+                    .pageSize(filterRequest.getPageSize())
+                    .totalElements(totalItems)
+                    .build();
+        }
 }
+
+
+
