@@ -4,6 +4,7 @@ package com.example.social.media.entity;
 import com.example.social.media.enumm.PostTypeEnum;
 import com.example.social.media.enumm.PostVisibilityEnum;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@EntityListeners(PostListener.class)
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -19,10 +19,11 @@ public interface CommentService {
     public CommentResponseDTO replyToComment(Integer parentId, CommentCreateRequest request);
     public PageResponse<CommentResponseDTO> getListComment(int page, int size, String sortDirection);
     public CommentResponseDTO getById(int id);
+    public List<CommentResponseDTO> getCommentCloser(Integer parentId , Integer postId);
+    public List<CommentResponseDTO> getCommentByPostId(Integer postId);
 
     List<Map<String, Object>> getCommentsStatisticsPerDay();
     List<Map<String, Object>> getCommentsStatisticsPerMonth();
     List<Map<String, Object>> getCommentsStatisticsPerYear();
-    public String deleteComment(int id);
     Page<CommentResponseDTO> findByPostPostId(int postId , ListRequest request);
 }

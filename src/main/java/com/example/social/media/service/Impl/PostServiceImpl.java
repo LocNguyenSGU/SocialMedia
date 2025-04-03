@@ -8,21 +8,20 @@ import com.example.social.media.enumm.PostTypeEnum;
 import com.example.social.media.enumm.PostVisibilityEnum;
 import com.example.social.media.exception.AppException;
 import com.example.social.media.exception.ErrorCode;
+import com.example.social.media.mapper.CommentMapper;
 import com.example.social.media.mapper.PostMapper;
 import com.example.social.media.payload.common.FakeNews;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
 import com.example.social.media.payload.request.SearchRequest.ListRequest;
+import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.payload.response.PostDTO.TopPostResponseDTO;
 import com.example.social.media.repository.PostMediaRepository;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
-import com.example.social.media.service.CloudinaryService;
-import com.example.social.media.service.OpenAIService;
-import com.example.social.media.service.PostMediaService;
-import com.example.social.media.service.PostService;
+import com.example.social.media.service.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -40,6 +39,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,16 +53,15 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class PostServiceImpl implements PostService {
+    CommentMapper commentMapper;
     PostRepository postRepository;
     PostMapper postMapper;
     UserRepository userRepository; // phai la goi thong qua user service -- cai nay de tam thoi
     CloudinaryService cloudinaryService;
+    CommentService commentService;
     PostMediaService postMediaService;
     OpenAIService openAIService;
 
-    @Value("${forbidden.words:}")
-    @NonFinal
-    String forbiddenWordsString;
 
     @Override
     public PostResponseDTO createPost(PostCreateRequest postCreateRequest, MultipartFile[] files) throws IOException {
@@ -110,6 +113,11 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
         Page<Post> posts = postRepository.searchPosts(search, pageable);
         Page<PostResponseDTO> postDTOs = posts.map(postMapper::toPostResponseDTO);
+        postDTOs.forEach(postDTO -> {
+            List<CommentResponseDTO> comments = commentService.getCommentByPostId(postDTO.getPostId());
+            postDTO.setComments(comments);
+        });
+
         return new PageResponse<>(postDTOs);
     }
 
@@ -141,7 +149,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void updateTotalNumberElementPost(String type, int postId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Khong co post id " + postId));
         if(type.equalsIgnoreCase("comment"))
             post.setNumberComment(post.getNumberComment() + 1);
         else if (type.equalsIgnoreCase("share"))
@@ -316,25 +324,6 @@ public class PostServiceImpl implements PostService {
         return getTop5PostsByInteraction(startDate, endDate);
     }
 
-    @Override
-    public String deletePost(int id) {
-        Post post = postRepository.findById(id).orElseThrow(() ->
-                new RuntimeException("Post not existed"));
-
-        String content = post.getContent().toLowerCase();
-
-        List<String> forbiddenWords = List.of(forbiddenWordsString.split(","));
-        for (String forbiddenWord : forbiddenWords) {
-            log.info(forbiddenWord);
-            if (content.contains(forbiddenWord.trim().toLowerCase())) {
-                postRepository.delete(post);
-                return "Bài viết đã được kiểm tra và xóa cảm ơn bạn";
-            }
-        }
-
-        return "Bài viết không chứa từ ngữ vi phạm";
-
-    }
 
     @Override
     public Page<PostResponseDTO> findByVisibility(ListRequest request) {

@@ -9,6 +9,7 @@ import com.example.social.media.service.MessageEmotionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +21,7 @@ public class MessageEmotionController {
         this.messageEmotionService = messageEmotionService;
     }
     @PostMapping("/create")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<DataResponse> createMessageEmotion(
             @RequestHeader("User-Id") Integer creatorId, // header là id đang đăng nhập
             @RequestBody MessageEmotionDTO request){

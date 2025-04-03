@@ -3,17 +3,21 @@ package com.example.social.media.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@EntityListeners(UserListener.class)
 public class User {
 
     @Id
@@ -57,9 +61,14 @@ public class User {
     @Column(name = "url_background")
     private String urlBackground;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    Set<Role> roles;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore // Ngăn Jackson gây vòng lặp vô hạn
     private List<ConversationMember> conversationMemberList;
+
+
 
     // Lifecycle callbacks
     @PrePersist
