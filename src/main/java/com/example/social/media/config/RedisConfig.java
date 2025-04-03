@@ -37,7 +37,7 @@ public class RedisConfig {
 
     @Bean
     @Primary
-    public ObjectMapper objectMapper() {
+    public ObjectMapper redisMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

@@ -1,9 +1,11 @@
 package com.example.social.media.controller;
+import com.example.social.media.entity.Role;
 import com.example.social.media.entity.User;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.request.AuthDTO.AuthRequest;
 import com.example.social.media.payload.request.AuthDTO.LogoutRequest;
 import com.example.social.media.payload.response.Aut.AuthenticationResponse;
+import com.example.social.media.repository.RoleRepository;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.Impl.JwtService;
 import com.example.social.media.service.Impl.UserInfoService;
@@ -18,8 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -36,6 +37,9 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @GetMapping("/welcome")
     public String welcome() {
@@ -61,12 +65,27 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new DataResponse(400, errors, "Validation failed"));
         }
 
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleRepository.getByName("USER"));
+        userInfo.setRoles(roles);
+
         boolean rs = service.addUser(userInfo);
         if (!rs) {
             return ResponseEntity.badRequest().body(new DataResponse(500, null, "There was an error!"));
         }
 
         return ResponseEntity.ok(new DataResponse(200, userInfo, "User Added Successfully"));
+    }
+
+    private String saveAvatar(byte[] image, String username) {
+        try {
+            String fileName = UUID.randomUUID() + "_" + username + ".png";
+            String filePath = "avatars/" + fileName;
+            java.nio.file.Files.write(java.nio.file.Paths.get(filePath), image);
+            return filePath;
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lưu avatar", e);
+        }
     }
 
     private Map<String, String> validateUserInput(User user) {
