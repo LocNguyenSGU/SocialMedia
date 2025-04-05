@@ -12,6 +12,7 @@ import java.util.List;
 public class ConversationDTO {
 
     private int idConversation;
+    private int idUserReceive;
     //inf of sender
     private String firstNameSender;
     private String lastNameSender;

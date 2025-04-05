@@ -24,8 +24,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+
+import java.util.Arrays;
 
 
 @Slf4j
@@ -51,7 +54,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
-                            .requestMatchers(HttpMethod.POST , PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.POST , PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated() // Protect all other endpoints
@@ -70,9 +74,10 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedOrigin("http://localhost:5173");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);

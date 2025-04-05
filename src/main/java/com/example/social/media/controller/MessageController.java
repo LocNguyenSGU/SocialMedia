@@ -31,7 +31,7 @@ public class MessageController {
         this.messagingTemplate = messagingTemplate;
     }
     @GetMapping("/{idUser}/{idConversation}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<DataResponse> getMessageByidUser_idConversation(@PathVariable int idUser,
                                                                           @PathVariable int idConversation,
                                                                           @RequestParam(required = false) LocalDateTime lastMessageTime,
@@ -48,7 +48,7 @@ public class MessageController {
         }
         return new ResponseEntity<>(dataResponse, HttpStatus.valueOf(dataResponse.getStatusCode()));
     }
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/getAllConversation/{idUser}")
     public ResponseEntity<DataResponse> getAllConversationByIdUser(@PathVariable int idUser){
         List<ConversationDTO> conDTO = messageService.getAllConversationByIdUser(idUser);
@@ -65,7 +65,7 @@ public class MessageController {
     }
 
     @PostMapping("/send")
-    @PreAuthorize("hasRole('USER')")
+//    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<DataResponse> sendMessage(@RequestBody SendMessageRequest request) {
         Message message = messageService.sendMessage(request);
         DataResponse dataResponse = new DataResponse();
