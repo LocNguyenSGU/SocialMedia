@@ -42,6 +42,7 @@ public class UserController {
     }
 
 
+
     @PutMapping("/{userId}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<DataResponse> updateUserProfile(
