@@ -82,6 +82,7 @@ public class MessageServiceImpl implements MessageService {
             conDto.setIdConversation(c.getConversation().getConversationId());
             conDto.setFirstNameReceiver(c.getUser().getFirstName());
             conDto.setLastNameReceiver(c.getUser().getLastName());
+            conDto.setIdUserReceive(c.getUser().getUserId());
             conversationDTOList.add(conDto);
         }
         if(!conversationDTOList.isEmpty()){
