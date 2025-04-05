@@ -27,7 +27,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -59,8 +61,10 @@ public class PostServiceImpl implements PostService {
     UserRepository userRepository; // phai la goi thong qua user service -- cai nay de tam thoi
     CloudinaryService cloudinaryService;
     CommentService commentService;
-    PostMediaService postMediaService;
     OpenAIService openAIService;
+    PostMediaService postMediaService;
+    // Thay vì constructor injection, sử dụng setter injection
+
 
 
     @Override
@@ -170,6 +174,23 @@ public class PostServiceImpl implements PostService {
             post.setNumberShare(post.getNumberShare() + 1);
         } else if (type.equalsIgnoreCase("emotion")) {
             post.setNumberEmotion(post.getNumberEmotion() + 1);
+        }
+
+        // Lưu thay đổi vào database
+        postRepository.save(post);
+    }
+
+    @Override
+    public void updateTotalDescNumberElementPost_AndSave(String type, int postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
+
+        if (type.equalsIgnoreCase("comment")) {
+            post.setNumberComment(post.getNumberComment() - 1);
+        } else if (type.equalsIgnoreCase("share")) {
+            post.setNumberShare(post.getNumberShare() - 1);
+        } else if (type.equalsIgnoreCase("emotion")) {
+            post.setNumberEmotion(post.getNumberEmotion() - 1);
         }
 
         // Lưu thay đổi vào database

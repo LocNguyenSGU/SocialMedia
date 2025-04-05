@@ -37,7 +37,6 @@ public class PostMedia {
     @Column(name = "media_order")
     private int order;
 
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

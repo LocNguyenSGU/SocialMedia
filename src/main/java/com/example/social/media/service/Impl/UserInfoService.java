@@ -15,10 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +32,10 @@ public class UserInfoService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = repository.findByUserName(username);
 
+        System.out.println("Found user: " + user.getUserName());
+        System.out.println("User roles:");
+        user.getRoles().forEach(role -> System.out.println(" - " + role.getName()));
+
         // Convert User entity to UserDetails
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUserName()) // Ensure you use the correct getter method
@@ -45,9 +46,14 @@ public class UserInfoService implements UserDetailsService {
     }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
+        List<GrantedAuthority> authorities = roles.stream()
+                .map(role -> {
+                    System.out.println("Mapping role: " + role.getName());
+                    return new SimpleGrantedAuthority(role.getName());
+                })
                 .collect(Collectors.toList());
+
+        return authorities;
     }
 
     public boolean addUser(User userInfo) {

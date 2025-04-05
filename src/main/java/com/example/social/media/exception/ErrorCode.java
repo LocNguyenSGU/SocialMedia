@@ -40,7 +40,9 @@ public enum ErrorCode {
     MEDIA_UPLOAD_FAILED(8001, "Failed to upload media", HttpStatus.INTERNAL_SERVER_ERROR),
     MEDIA_FORMAT_UNSUPPORTED(8002, "Media format is not supported", HttpStatus.BAD_REQUEST),
     POST_NOT_EXISTED(8000 , "Post not found" , HttpStatus.NOT_FOUND),
-    BAD_REQUEST_FAKE_NEWS(8002, "Post khong co content o dang chu, khong kiem tra duoc",HttpStatus.BAD_REQUEST)
+    BAD_REQUEST_FAKE_NEWS(8002, "Post khong co content o dang chu, khong kiem tra duoc",HttpStatus.BAD_REQUEST),
+    POST_MEDIA_NOT_FOUND(10000, "Post media not found", HttpStatus.NOT_FOUND),
+    POST_EMOTION_NOT_FOUND(11000, "Post emotion not found", HttpStatus.NOT_FOUND),
     ;
 
 

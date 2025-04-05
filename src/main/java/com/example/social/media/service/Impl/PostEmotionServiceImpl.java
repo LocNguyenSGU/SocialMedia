@@ -3,8 +3,11 @@ package com.example.social.media.service.Impl;
 import com.example.social.media.entity.Post;
 import com.example.social.media.entity.PostEmotion;
 import com.example.social.media.entity.User;
+import com.example.social.media.exception.AppException;
+import com.example.social.media.exception.ErrorCode;
 import com.example.social.media.mapper.PostEmotionMapper;
 import com.example.social.media.payload.request.PostEmotionDTO.PostEmotionCreateRequest;
+import com.example.social.media.payload.request.PostEmotionDTO.PostEmotionDeleteRequest;
 import com.example.social.media.payload.response.PostEmotionDTO.PostEmotionResponseDTO;
 import com.example.social.media.repository.PostEmotionRepository;
 import com.example.social.media.repository.PostRepository;
@@ -15,7 +18,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,8 +32,10 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class PostEmotionServiceImpl implements PostEmotionService {
+    private final PostRepository postRepository;
     PostEmotionRepository postEmotionRepository;
     UserRepository userRepository; // phai thong qua service
+    @Lazy
     PostService postService;
     PostEmotionMapper postEmotionMapper;
 
@@ -44,7 +51,7 @@ public class PostEmotionServiceImpl implements PostEmotionService {
 
         PostEmotion postEmotionSaved = postEmotionRepository.save(postEmotion);
         PostEmotionResponseDTO responseDTO = postEmotionMapper.toPostEmotionResponseDTO(postEmotionSaved);
-        postService.updateTotalNumberElementPost_AndSave("comment", request.getPostId());
+        postService.updateTotalNumberElementPost_AndSave("emotion", request.getPostId());
         return responseDTO;
     }
 
@@ -62,6 +69,19 @@ public class PostEmotionServiceImpl implements PostEmotionService {
     @Override
     public List<Map<String, Object>> getPostEmotionsStatisticsPerYear() {
         return convertToMapList(postEmotionRepository.countPostEmotionsPerYear(), "year", "count");
+    }
+
+    @Override
+    @Transactional
+    public void deletePostEmotion(PostEmotionDeleteRequest postEmotionDeleteRequest) {
+        int postId = postEmotionDeleteRequest.getPostId();
+        int userId = postEmotionDeleteRequest.getUserId();
+        if(postEmotionRepository.existsByPost_PostIdAndUser_UserId(postId, userId)){
+            postEmotionRepository.deleteByPost_PostIdAndUser_UserId(postId, userId);
+            postService.updateTotalDescNumberElementPost_AndSave("emotion", postId);
+            return;
+        }
+        throw new AppException(ErrorCode.POST_EMOTION_NOT_FOUND);
     }
 
     private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {

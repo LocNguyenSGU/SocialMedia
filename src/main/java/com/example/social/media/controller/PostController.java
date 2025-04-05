@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class PostController {
+    @Lazy
     PostService postService;
     OpenAIService openAIService;
 

@@ -3,6 +3,7 @@ package com.example.social.media.controller;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostEmotionDTO.PostEmotionCreateRequest;
+import com.example.social.media.payload.request.PostEmotionDTO.PostEmotionDeleteRequest;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.payload.response.PostEmotionDTO.PostEmotionResponseDTO;
 import com.example.social.media.service.PostEmotionService;
@@ -63,5 +64,11 @@ public class PostEmotionController {
             return ResponseEntity.ok(new DataResponse(204, null, "Không có dữ liệu tương tác bài viết trong năm."));
         }
         return ResponseEntity.ok(new DataResponse(200, data, "Thống kê số lượng tương tác bài viết theo năm."));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deletePostEmotion(@Valid @RequestBody PostEmotionDeleteRequest postEmotionDeleteRequest) {
+        postEmotionService.deletePostEmotion(postEmotionDeleteRequest);
+        return ResponseEntity.ok(new DataResponse("PostEmotion đã được xóa thành công!", "PostEmotion đã được xóa thành công!"));
     }
 }

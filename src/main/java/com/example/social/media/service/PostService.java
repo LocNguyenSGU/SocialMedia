@@ -27,17 +27,15 @@ public interface PostService {
 
     void updateTotalNumberElementPost(String type, int postId);
     public void updateTotalNumberElementPost_AndSave(String type, int postId);
-
+    void updateTotalDescNumberElementPost_AndSave(String type, int postId);
     PostResponseDTO updatePost(int postId, PostUpdateRequestDTO postUpdateRequest, MultipartFile[] newFiles) throws IOException;
 
     List<Map<String, Object>> getPostStatisticsPerDay();
     List<Map<String, Object>> getPostStatisticsPerMonth();
     List<Map<String, Object>> getPostStatisticsPerYear();
-
     List<TopPostResponseDTO> getTop5PostsByInteraction(LocalDateTime startDate, LocalDateTime endDate);
     List<TopPostResponseDTO> getTop5PostsByTimeFrame(String timeFrame, Integer week, Integer month, Integer year);
     Page<PostResponseDTO> findByVisibility(ListRequest listRequest);
-
     List<FakeNews> checkFakeNews(int postId) throws Exception;
 
 }

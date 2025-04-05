@@ -3,6 +3,7 @@ package com.example.social.media.repository;
 import com.example.social.media.entity.PostEmotion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,4 +29,8 @@ public interface PostEmotionRepository extends JpaRepository<PostEmotion, Intege
             "GROUP BY FUNCTION('YEAR', pe.createdAt) " +
             "ORDER BY year")
     List<Object[]> countPostEmotionsPerYear();
+
+    // Xóa PostEmotion theo postId và userId
+    void deleteByPost_PostIdAndUser_UserId(int postId, int userId);
+    boolean existsByPost_PostIdAndUser_UserId(int postId, int userId);
 }
