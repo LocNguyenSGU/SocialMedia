@@ -2,6 +2,7 @@ package com.example.social.media.service.Impl;
 
 import com.example.social.media.config.RabbitMQConfig;
 import com.example.social.media.payload.common.NotificationMessage;
+import com.example.social.media.payload.request.NotificationDTO.NotificationRequestDTO;
 import com.example.social.media.service.NotificationRabbitMQService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ public class NotificationRabbitMQServiceImpl implements NotificationRabbitMQServ
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Override
-    public void sendNotification(NotificationMessage<?> notificationMessage) {
+    public void sendNotification(NotificationMessage<NotificationRequestDTO> notificationMessage) {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE,
                 RabbitMQConfig.ROUTING_KEY,

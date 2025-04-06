@@ -1,6 +1,7 @@
 package com.example.social.media.service;
 
 
+import com.example.social.media.entity.User;
 import com.example.social.media.payload.request.ProfileDTO.AvatarUpdateRequest;
 import com.example.social.media.payload.request.ProfileDTO.UserUpdateRequest;
 import com.example.social.media.payload.response.ProfileDTO.UserResponse;
@@ -22,6 +23,8 @@ public interface UserService {
     Page<UserResponse> getDsUsersByKeyword(String keyword , int page , int size);
     UserResponse getUserInfo(int userId);
     Map<String, String> validateUserFields(Integer userId , String userName, String email, String phoneNumber);
+
+    User getUserById(int id);
 
 }
 

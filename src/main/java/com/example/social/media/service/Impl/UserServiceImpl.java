@@ -197,5 +197,10 @@ public class UserServiceImpl implements UserService {
 
         return errors;
     }
+
+    @Override
+    public User getUserById(int id) {
+        return userRepository.findByUserId(id);
+    }
 }
 
