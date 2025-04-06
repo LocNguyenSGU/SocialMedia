@@ -1,17 +1,20 @@
 package com.example.social.media.controller;
 
 import com.example.social.media.payload.common.DataResponse;
+import com.example.social.media.payload.common.NotificationMessage;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostEmotionDTO.PostEmotionCreateRequest;
 import com.example.social.media.payload.request.PostEmotionDTO.PostEmotionDeleteRequest;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.payload.response.PostEmotionDTO.PostEmotionResponseDTO;
+import com.example.social.media.service.NotificationRabbitMQService;
 import com.example.social.media.service.PostEmotionService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,11 +30,13 @@ import java.util.Map;
 @Slf4j
 public class PostEmotionController {
     PostEmotionService postEmotionService;
+    NotificationRabbitMQService notificationRabbitMQService;
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public DataResponse<PostEmotionResponseDTO> create(@Valid @RequestBody PostEmotionCreateRequest postEmotionCreateRequest) {
         PostEmotionResponseDTO responseDTO = postEmotionService.createEmotion(postEmotionCreateRequest);
+        notificationRabbitMQService.sendNotification(new NotificationMessage<>(5, "noi dung thong bao tao cam xuc"));
         return DataResponse.<PostEmotionResponseDTO>builder()
                 .data(responseDTO)
                 .message("Tao moi cam xuc bai post")
