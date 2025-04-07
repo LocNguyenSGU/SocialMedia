@@ -4,11 +4,13 @@ import com.example.social.media.entity.User;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.request.AuthDTO.AuthRequest;
 import com.example.social.media.payload.request.AuthDTO.LogoutRequest;
+import com.example.social.media.payload.request.AuthDTO.RefreshRequest;
 import com.example.social.media.payload.response.Aut.AuthenticationResponse;
 import com.example.social.media.repository.RoleRepository;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.Impl.JwtService;
 import com.example.social.media.service.Impl.UserInfoService;
+import com.nimbusds.jose.JOSEException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.*;
 
 @RestController
@@ -124,9 +127,19 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public DataResponse<Void> logout(@RequestBody LogoutRequest logoutRequest){
+    public DataResponse<Void> logout(@RequestBody LogoutRequest logoutRequest) throws ParseException, JOSEException {
         jwtService.logout(logoutRequest);
         return DataResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/refresh")
+    public AuthenticationResponse authenticate(@RequestBody RefreshRequest request)
+            throws ParseException, JOSEException {
+        var result = jwtService.refreshToken(request);
+        return AuthenticationResponse.builder()
+                .token(result)
+                .authenticated(true)
+                .build();
     }
 
     @PostMapping("/generateToken")
