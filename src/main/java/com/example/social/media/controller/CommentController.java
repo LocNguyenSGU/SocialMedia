@@ -1,12 +1,16 @@
 package com.example.social.media.controller;
 
+import com.example.social.media.entity.Post;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.request.CommentDTO.CommentCreateRequest;
 import com.example.social.media.payload.request.CommentDTO.CommentUpdateRequest;
+import com.example.social.media.payload.request.NotificationDTO.NotificationRequestDTO;
 import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
 import com.example.social.media.service.CommentService;
+import com.example.social.media.service.NotificationService;
+import com.example.social.media.service.PostService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +30,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CommentController {
     CommentService service;
+    NotificationService notificationService;
+    PostService postService;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -57,6 +63,17 @@ public class CommentController {
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public DataResponse<CommentResponseDTO> create(@Valid @RequestBody CommentCreateRequest request){
+        NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO();
+
+        Post post = postService.getPostById(request.getPostId());
+
+        notificationRequestDTO.setReceiver(post.getUser().getUserId());
+        notificationRequestDTO.setSenderId(request.getUserId());
+        notificationRequestDTO.setPostId(request.getPostId());
+        notificationRequestDTO.setContent("Người dùng " + "đã bình luận bài viết của bạn");
+        notificationRequestDTO.setType("comment");
+        notificationService.createNotification(notificationRequestDTO);
+
         return DataResponse.<CommentResponseDTO>builder()
                 .data(service.create(request))
                 .build();

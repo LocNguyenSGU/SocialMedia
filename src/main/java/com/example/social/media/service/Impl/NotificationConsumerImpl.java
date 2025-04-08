@@ -34,7 +34,7 @@ public class NotificationConsumerImpl implements NotificationConsumer {
             System.out.println("Email se nhan duoc thong bao thuc te: " + emailReceiver);
             NotificationRequestDTO notificationRequestDTO = (NotificationRequestDTO) notificationMessage.getObject();
             System.out.println("Noi dung thong bao thuc te: " + notificationRequestDTO.getContent());
-            emailService.sendEmail("lockbangss@gmail.com", "Social media", "Thong bao");
+            emailService.sendEmail("lockbangss@gmail.com", "Social media", notificationRequestDTO.getContent());
         }
     }
 

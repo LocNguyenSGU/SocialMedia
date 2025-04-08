@@ -5,9 +5,11 @@ import com.example.social.media.entity.ListInvitedFriend;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.request.ListInvitedFriend.ListInvitedFriendCreateRequest;
 import com.example.social.media.payload.request.ListInvitedFriend.ListInvitedFriendUpdateRequest;
+import com.example.social.media.payload.request.NotificationDTO.NotificationRequestDTO;
 import com.example.social.media.payload.response.ListInvitedFriendDTO.ListInvitedFriendResponseDTO;
 import com.example.social.media.service.FriendService;
 import com.example.social.media.service.ListInvitedFriendService;
+import com.example.social.media.service.NotificationService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ListInvitedFriendController {
     ListInvitedFriendService listInvitedFriendService ;
-    FriendService friendService ;
+    FriendService friendService;
+    NotificationService notificationService;
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public DataResponse<ListInvitedFriendResponseDTO> create(@Valid @RequestBody ListInvitedFriendCreateRequest request){
@@ -52,6 +55,15 @@ public class ListInvitedFriendController {
                     .message("loi moi ket ban phai la status sent")
                     .statusCode(400)
                     .build();
+
+
+        NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO();
+        notificationRequestDTO.setReceiver(request.getReceiver());
+        notificationRequestDTO.setSenderId(request.getSender());
+        notificationRequestDTO.setContent("Người dùng " + "đã gửi yêu cầu kết bạn");
+        notificationRequestDTO.setType("friend");
+        notificationService.createNotification(notificationRequestDTO);
+
         return DataResponse.<ListInvitedFriendResponseDTO>builder()
                 .data(listInvitedFriendService.create(request))
                 .message("da gui loi moi ket ban")
