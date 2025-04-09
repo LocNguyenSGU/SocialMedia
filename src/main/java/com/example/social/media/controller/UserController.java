@@ -10,6 +10,7 @@ import com.example.social.media.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -167,5 +170,17 @@ public class UserController {
             return ResponseEntity.badRequest().body(errors);
         }
         return ResponseEntity.ok("Hợp lệ, có thể đăng ký.");
+    }
+
+    @GetMapping("/users/count")
+    public ResponseEntity<DataResponse> getUserDetailsBetween(
+            @RequestParam("start") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start,
+            @RequestParam("end") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+
+        Map<String, Object> result = service.getUsersCreatedBetween(start, end);
+
+        return ResponseEntity.ok(
+                new DataResponse(200, result, "Thống kê người dùng thành công")
+        );
     }
 }

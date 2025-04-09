@@ -7,6 +7,8 @@ import com.example.social.media.payload.request.ProfileDTO.UserUpdateRequest;
 import com.example.social.media.payload.response.ProfileDTO.UserResponse;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +27,7 @@ public interface UserService {
     Map<String, String> validateUserFields(Integer userId , String userName, String email, String phoneNumber);
 
     User getUserById(int id);
+    Map<String, Object> getUsersCreatedBetween(LocalDate start, LocalDate end);
 
 }
 

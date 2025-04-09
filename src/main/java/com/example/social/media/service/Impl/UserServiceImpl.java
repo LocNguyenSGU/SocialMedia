@@ -26,6 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -202,5 +204,20 @@ public class UserServiceImpl implements UserService {
     public User getUserById(int id) {
         return userRepository.findByUserId(id);
     }
+
+    @Override
+    public Map<String, Object> getUsersCreatedBetween(LocalDate start, LocalDate end) {
+        LocalDateTime startDateTime = start.atStartOfDay();
+        LocalDateTime endDateTime = end.plusDays(1).atStartOfDay(); // để inclusive
+
+        List<User> users = userRepository.findByCreatedAtBetween(startDateTime, endDateTime);
+        long count = users.size();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("count", count);
+        result.put("users", users.stream().map(userMapper::toDto).toList()); // trả về list UserResponse
+        return result;
+    }
+
 }
 

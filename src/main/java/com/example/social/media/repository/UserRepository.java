@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User , Integer>, JpaSpecificationExecutor<User> {
@@ -30,4 +32,7 @@ public interface UserRepository extends JpaRepository<User , Integer>, JpaSpecif
     Page<User> searchUsers(@Param("keyword") String keyword , Pageable pageable);
 
     Page<User> findByUserNameContaining(String keyword, Pageable pageable);
+
+    List<User> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
 }
