@@ -36,26 +36,19 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public PageResponse<SearchResultResponse> searchAll(ListSearchRequest filterRequest) {
-        var pageRequest = PageRequest.of(filterRequest.getPage() - 1, filterRequest.getPageSize());
+        var pageRequest = PageRequest.of(filterRequest.getPage() - 1, filterRequest.getPageSize() /2);
 
         // Try to get results from Redis cache first
-        List<SearchResultResponse> cachedResults = searchRedisService.getSearch(
+        PageResponse<SearchResultResponse> cachedResults = searchRedisService.getSearch(
                 filterRequest.getQuery(),
                 pageRequest
         );
 
         if (cachedResults != null) {
-            long totalItems = cachedResults.size();
-            int pageCount = (int) Math.ceil((double) totalItems / filterRequest.getPageSize());
+           return cachedResults;
+        }
 
-            return PageResponse.<SearchResultResponse>builder()
-                        .data(cachedResults)
-                        .currentPage(filterRequest.getPage())
-                        .totalPage(pageCount)
-                        .pageSize(filterRequest.getPageSize())
-                        .totalElements(totalItems)
-                        .build();
-            }
+
 
             // If not in cache, perform the database search
             Page<User> userPage = userRepository.findByUserNameContaining(filterRequest.getQuery(), pageRequest);
@@ -79,7 +72,13 @@ public class SearchServiceImpl implements SearchService {
             var pageCount = (int) Math.ceil((double) totalItems / filterRequest.getPageSize());
 
             // Save results to Redis cache
-            searchRedisService.saveSearch(results, filterRequest.getQuery(), pageRequest);
+            searchRedisService.saveSearch(PageResponse.<SearchResultResponse>builder()
+                    .data(results)
+                    .currentPage(page)
+                    .totalPage(pageCount)
+                    .pageSize(filterRequest.getPageSize())
+                    .totalElements(totalItems)
+                    .build(), filterRequest.getQuery(), pageRequest );
 
             return PageResponse.<SearchResultResponse>builder()
                     .data(results)

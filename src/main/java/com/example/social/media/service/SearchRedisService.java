@@ -1,7 +1,11 @@
 package com.example.social.media.service;
 
+import com.example.social.media.payload.common.PageResponse;
 import com.example.social.media.payload.response.SeachResult.SearchResultResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.data.domain.PageRequest;
@@ -14,11 +18,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SearchRedisService{
     private final RedisCacheManager redisCacheManager;
     private final StringRedisTemplate stringRedisTemplate;
+    private final ObjectMapper objectMapper;
 
     @Value("${spring.data.redis.use-redis-cache}")
     private boolean useRedisCache;
@@ -37,24 +43,27 @@ public class SearchRedisService{
 
 
 
-    public List<SearchResultResponse> getSearch(String keyword, PageRequest pageRequest) {
+    public PageResponse<SearchResultResponse> getSearch(String keyword, PageRequest pageRequest) {
         if (!useRedisCache) {
             return null;
         }
         String key = this.getKeyFrom(keyword, pageRequest);
         Cache cache = redisCacheManager.getCache("searchResults");
-        return cache != null ? cache.get(key, List.class) : null;
+        if (cache == null) return null;
+
+        Object cached = cache.get(key, Object.class);
+        if (cached == null) return null;
+
+        return objectMapper.convertValue(
+                cached,
+                new TypeReference<PageResponse<SearchResultResponse>>() {}
+        );
     }
 
-    public void clearSearchResults() {
-        Cache cache = redisCacheManager.getCache("searchResults");
-        if (cache != null) {
-            cache.clear();
-        }
-    }
 
-    public void saveSearch(List<SearchResultResponse> searchResultResponses,
-                                String keyword, PageRequest pageRequest) {
+
+    public void saveSearch(PageResponse<SearchResultResponse>  searchResultResponses,
+                           String keyword, PageRequest pageRequest ) {
         String key = this.getKeyFrom(keyword, pageRequest);
         Cache cache = redisCacheManager.getCache("searchResults");
         if (cache != null) {
