@@ -19,6 +19,11 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("http://localhost:5173") // ✅ Cho phép tất cả frontend kết nối
                 .withSockJS(); // ✅ Bật hỗ trợ SockJS
+
+        // 🔔 Endpoint riêng cho notification
+        registry.addEndpoint("/ws-notification")
+                .setAllowedOriginPatterns("http://localhost:5173")
+                .withSockJS();
     }
 }
 

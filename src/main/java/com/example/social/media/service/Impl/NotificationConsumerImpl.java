@@ -24,10 +24,9 @@ public class NotificationConsumerImpl implements NotificationConsumer {
     @RabbitListener(queues = RabbitMQConfig.QUEUE)
     public void receiveMessage(NotificationMessage<NotificationRequestDTO> notificationMessage) {
         boolean userOnline = checkIfUserOnline(notificationMessage.getIdReceiver());
-
         if (userOnline) {
             System.out.println("Da gui cho online");
-//            messagingTemplate.convertAndSendToUser(notification.getUserId(), "/queue/notifications", notification);
+            messagingTemplate.convertAndSendToUser(String.valueOf(notificationMessage.getIdReceiver()), "/queue/notifications", notificationMessage);
         } else {
             System.out.println("Da gui cho offline");
             String emailReceiver = userService.getUserById(notificationMessage.getIdReceiver()).getEmail();

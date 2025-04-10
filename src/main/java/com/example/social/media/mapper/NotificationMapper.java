@@ -37,6 +37,7 @@ public class NotificationMapper {
 
         NotificationResponseDTO dto = new NotificationResponseDTO();
         User userSender = (notification.getSender());
+        dto.setNoticeId(notification.getNoticeId());
         dto.setFirstNameSender(userSender.getFirstName());
         dto.setLastNameSender(userSender.getLastName());
         dto.setUrlAvatarSender(userSender.getUrlAvatar());
