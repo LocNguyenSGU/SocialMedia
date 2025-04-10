@@ -7,7 +7,7 @@ import com.example.social.media.payload.response.NotificationDTO.NotificationRes
 public interface NotificationService {
     NotificationResponseDTO createNotification(NotificationRequestDTO notificationRequestDTO);
     PageResponse<NotificationResponseDTO> getNotifies(int page, int size, String sortDirection);
-    PageResponse<NotificationResponseDTO> getNotifiesByIdReceiver(int page, int size, String sortDirection, int idReceiver);
+    PageResponse<NotificationResponseDTO> getNotifiesByIdReceiver(int page, int size, String sortDirection, int idReceiver, String hasUnRead);
     Void updateIsReadNotifyById(int idNotify);
     Void updateIsReadAllNotifyByIdUser(int idUser);
 

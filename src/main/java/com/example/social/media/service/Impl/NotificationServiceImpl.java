@@ -34,8 +34,9 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationResponseDTO createNotification(NotificationRequestDTO notificationRequestDTO) {
         Notification notification = notificationMapper.toEntity(notificationRequestDTO);
         Notification notificationSaved = notificationRepository.save(notification);
+        NotificationResponseDTO notificationResponseDTO = notificationMapper.toNotificationResponseDTO(notificationSaved);
         int idReceiver = notificationRequestDTO.getReceiver();
-        notificationRabbitMQService.sendNotification(new NotificationMessage<>(idReceiver, notificationRequestDTO));
+        notificationRabbitMQService.sendNotification(new NotificationMessage<>(idReceiver, notificationResponseDTO));
         return notificationMapper.toNotificationResponseDTO(notificationSaved);
     }
 
@@ -50,12 +51,21 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public PageResponse<NotificationResponseDTO> getNotifiesByIdReceiver(int page, int size, String sortDirection, int idReceiver) {
+    public PageResponse<NotificationResponseDTO> getNotifiesByIdReceiver(int page, int size, String sortDirection, int idReceiver, String hasUnRead) {
+        // Tạo Sort và Pageable dùng chung
         Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
-        Page<Notification> notificationPage = notificationRepository.findByReceiver_UserId(pageable, idReceiver);
-        Page<NotificationResponseDTO> responseDTOPageResponse = notificationPage.map(notificationMapper::toNotificationResponseDTO);
 
+        // Chọn phương thức truy vấn dựa trên hasUnRead
+        Page<Notification> notificationPage;
+        if (hasUnRead.equalsIgnoreCase("no")) {
+            notificationPage = notificationRepository.findByReceiver_UserId(pageable, idReceiver);
+        } else {
+            notificationPage = notificationRepository.findByIsReadFalseAndReceiver_UserId(pageable, idReceiver);
+        }
+
+        // Chuyển sang DTO
+        Page<NotificationResponseDTO> responseDTOPageResponse = notificationPage.map(notificationMapper::toNotificationResponseDTO);
         return new PageResponse<>(responseDTOPageResponse);
     }
 

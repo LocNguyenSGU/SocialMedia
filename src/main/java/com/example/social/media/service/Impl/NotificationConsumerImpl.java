@@ -1,8 +1,10 @@
 package com.example.social.media.service.Impl;
 
 import com.example.social.media.config.RabbitMQConfig;
+import com.example.social.media.entity.User;
 import com.example.social.media.payload.common.NotificationMessage;
 import com.example.social.media.payload.request.NotificationDTO.NotificationRequestDTO;
+import com.example.social.media.payload.response.NotificationDTO.NotificationResponseDTO;
 import com.example.social.media.service.EmailService;
 import com.example.social.media.service.NotificationConsumer;
 import com.example.social.media.service.UserService;
@@ -20,25 +22,24 @@ public class NotificationConsumerImpl implements NotificationConsumer {
     private EmailService emailService;
     @Autowired
     private UserService userService;
+
     @Override
     @RabbitListener(queues = RabbitMQConfig.QUEUE)
-    public void receiveMessage(NotificationMessage<NotificationRequestDTO> notificationMessage) {
+    public void receiveMessage(NotificationMessage<NotificationResponseDTO> notificationMessage) {
         boolean userOnline = checkIfUserOnline(notificationMessage.getIdReceiver());
         if (userOnline) {
-            System.out.println("Da gui cho online");
-            messagingTemplate.convertAndSendToUser(String.valueOf(notificationMessage.getIdReceiver()), "/queue/notifications", notificationMessage);
+            messagingTemplate.convertAndSend("/topic/notify-" + 66, notificationMessage);
         } else {
-            System.out.println("Da gui cho offline");
             String emailReceiver = userService.getUserById(notificationMessage.getIdReceiver()).getEmail();
-            System.out.println("Email se nhan duoc thong bao thuc te: " + emailReceiver);
-            NotificationRequestDTO notificationRequestDTO = (NotificationRequestDTO) notificationMessage.getObject();
-            System.out.println("Noi dung thong bao thuc te: " + notificationRequestDTO.getContent());
-            emailService.sendEmail("lockbangss@gmail.com", "Social media", notificationRequestDTO.getContent());
+            NotificationResponseDTO notificationResponseDTO = (NotificationResponseDTO) notificationMessage.getObject();
+            String firstName = notificationResponseDTO.getFirstNameSender();
+            String lastName = notificationResponseDTO.getLastNameSender();
+            emailService.sendEmail(emailReceiver, "Social media", firstName + " " + lastName + ": " + notificationResponseDTO.getContent());
         }
     }
 
     private boolean checkIfUserOnline(int userId) {
-        // Implement check online (Redis, session map, etc.)
-        return false;
+        User user = userService.getUserById(userId);
+        return user.getIsOnline();
     }
 }
