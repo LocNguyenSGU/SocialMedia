@@ -41,10 +41,11 @@ public class NotificationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "desc") String sort,
+            @RequestParam(defaultValue = "no") String hasUnRead,
             @PathVariable int idUser
     ){
         return DataResponse.<PageResponse<NotificationResponseDTO>>builder()
-                .data(notificationService.getNotifiesByIdReceiver(page, size, sort, idUser))
+                .data(notificationService.getNotifiesByIdReceiver(page, size, sort, idUser, hasUnRead))
                 .message("Lay all notify by id nhan")
                 .build();
     }
