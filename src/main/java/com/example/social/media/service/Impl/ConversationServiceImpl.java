@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ConversationServiceImpl implements ConversationService {
@@ -28,6 +29,16 @@ public class ConversationServiceImpl implements ConversationService {
         if (creatorId == null || participantIds == null || participantIds.isEmpty()) {
             throw new IllegalArgumentException("Creator ID and at least one participant are required");
         }
+
+        if (participantIds.size() == 1) {
+            // Private chat: kiểm tra tồn tại trước
+            Integer participantId = participantIds.get(0);
+            Optional<Conversation> existing = conversationRepository.findPrivateConversationBetweenUsers(creatorId, participantId);
+            if (existing.isPresent()) {
+                return existing.get(); // hoặc throw nếu muốn
+            }
+        }
+
         //get các user tham gia group chat
         List<User> listUser = userRepository.findAllById(participantIds);
         User creator = userRepository.findById(creatorId).orElseThrow(()-> new IllegalArgumentException("Creator not found"));

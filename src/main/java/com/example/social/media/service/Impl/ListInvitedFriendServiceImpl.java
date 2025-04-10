@@ -1,6 +1,7 @@
 package com.example.social.media.service.Impl;
 
 
+import com.example.social.media.entity.Conversation;
 import com.example.social.media.entity.ListInvitedFriend;
 import com.example.social.media.entity.User;
 import com.example.social.media.mapper.ListInvitedFriendMapper;
@@ -11,12 +12,14 @@ import com.example.social.media.payload.response.FriendDTO.FriendResponseDTO;
 import com.example.social.media.payload.response.ListInvitedFriendDTO.ListInvitedFriendResponseDTO;
 import com.example.social.media.repository.ListInvitedFriendRepository;
 import com.example.social.media.repository.UserRepository;
+import com.example.social.media.service.ConversationService;
 import com.example.social.media.service.FriendService;
 import com.example.social.media.service.ListInvitedFriendService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -35,6 +38,8 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
     ListInvitedFriendMapper listInvitedFriendMapper ;
     UserRepository userRepository ;
     FriendService friendService;
+    @Autowired
+    private ConversationService conversationService;
 
     @Override
     public ListInvitedFriendResponseDTO create(ListInvitedFriendCreateRequest request) {
@@ -80,6 +85,14 @@ public class ListInvitedFriendServiceImpl implements ListInvitedFriendService {
             friendCreateRequest.setUser_id(listInvitedFriend.getSender().getUserId());
             friendCreateRequest.setFriend_id(listInvitedFriend.getReceiver().getUserId());
             FriendResponseDTO friendResponseDTO = friendService.create(friendCreateRequest);
+            try{
+                Conversation conversation = conversationService.createOneToOneConversation(
+                        listInvitedFriend.getSender().getUserId(),
+                        listInvitedFriend.getReceiver().getUserId()
+                );
+            } catch (Exception e){
+                e.printStackTrace();
+            }
             System.out.println(friendResponseDTO);
         }
         ListInvitedFriendResponseDTO response = listInvitedFriendMapper.toListInvitedFriendResponseDTO(listInvitedFriend);
