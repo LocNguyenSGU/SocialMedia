@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -37,5 +38,5 @@ public interface PostService {
     List<TopPostResponseDTO> getTop5PostsByTimeFrame(String timeFrame, Integer week, Integer month, Integer year);
     Page<PostResponseDTO> findByVisibility(ListRequest listRequest);
     List<FakeNews> checkFakeNews(int postId) throws Exception;
-
+    Map<String, Object> getPostStats(LocalDate startDate, LocalDate endDate);
 }

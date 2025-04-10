@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -176,5 +177,14 @@ public class PostController {
     @PostMapping("/check-fake-news/{postId}")
     public ResponseEntity<DataResponse<List<FakeNews>>> checkFakeNews(@PathVariable int postId) throws Exception {
         return ResponseEntity.ok(new DataResponse<>(200, postService.checkFakeNews(postId), "Kiem duyet noi dung bai post"));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getPostStats(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        Map<String, Object> stats = postService.getPostStats(startDate, endDate);
+        return ResponseEntity.ok(stats);
     }
 }

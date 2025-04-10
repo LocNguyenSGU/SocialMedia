@@ -374,4 +374,18 @@ public class PostServiceImpl implements PostService {
         }
         return dataList;
     }
+
+    @Override
+    public Map<String, Object> getPostStats(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay(); // inclusive
+
+        List<Post> posts = postRepository.findByCreatedAtBetween(startDateTime, endDateTime);
+        long count = posts.size();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("count", count);
+        result.put("posts", posts);
+        return result;
+    }
 }

@@ -3,6 +3,7 @@ package com.example.social.media.entity;
 
 import com.example.social.media.enumm.PostTypeEnum;
 import com.example.social.media.enumm.PostVisibilityEnum;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -57,13 +58,16 @@ public class Post {
     private PostTypeEnum typePost;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Comment> commentList;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     @JoinColumn(name="post_id")
     private List<PostMedia> postMediaList;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     @JoinColumn(name="post_id")
     private List<PostEmotion> postEmotionList;
 
