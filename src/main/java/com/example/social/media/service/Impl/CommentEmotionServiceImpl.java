@@ -2,24 +2,25 @@ package com.example.social.media.service.Impl;
 
 import com.example.social.media.entity.Comment;
 import com.example.social.media.entity.CommentEmotion;
+import com.example.social.media.entity.Post;
 import com.example.social.media.entity.User;
 import com.example.social.media.mapper.CommentEmotionMapper;
 import com.example.social.media.payload.request.CommentDTO.emotion.CommentEmotionCreateRequest;
 import com.example.social.media.payload.response.CommentDTO.emotion.CommentEmotionResponseDTO;
 import com.example.social.media.repository.CommentEmotionRepository;
 import com.example.social.media.repository.CommentRepository;
+import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.CommentEmotionService;
+import com.example.social.media.service.PostService;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -32,17 +33,32 @@ public class CommentEmotionServiceImpl implements CommentEmotionService {
     UserRepository userRepository;
 
 
-    @Override
-    public CommentEmotionResponseDTO create(CommentEmotionCreateRequest request) {
+    @Transactional
+    public void toggleLike(CommentEmotionCreateRequest request) {
+        Optional<CommentEmotion> existingEmotion = emotionRepository
+                .findByUser_UserIdAndComment_CommentId(request.getUserId(), request.getCommentId());
+
         Comment comment = commentRepository.findById(request.getCommentId())
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (existingEmotion.isPresent()) {
+            emotionRepository
+                    .deleteByUser_UserIdAndComment_CommentId(request.getUserId(), request.getCommentId());
+            comment.setNumberEmotion(comment.getNumberEmotion() - 1) ;
+        } else {
+            User user = userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-        CommentEmotion commentEmotion = emotionRepository.save(mapper.toCommentEmotion(request));
-        return mapper.toCommentEmotionResponseDto(commentEmotion);
+            CommentEmotion newEmotion = new CommentEmotion();
+            newEmotion.setUser(user);
+            newEmotion.setComment(comment);
+            newEmotion.setEmotion(request.getEmotion());
+            emotionRepository.save(newEmotion);
+            comment.setNumberEmotion(comment.getNumberEmotion() + 1) ;
+        }
     }
+
+
 
     //Statistics
     @Override

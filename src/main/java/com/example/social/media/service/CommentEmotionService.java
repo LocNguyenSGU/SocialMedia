@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface CommentEmotionService {
-    public CommentEmotionResponseDTO create(CommentEmotionCreateRequest request);
+    public void toggleLike(CommentEmotionCreateRequest request);
 
     List<Map<String, Object>> getCommentEmotionsStatisticsPerDay();
     List<Map<String, Object>> getCommentEmotionsStatisticsPerMonth();

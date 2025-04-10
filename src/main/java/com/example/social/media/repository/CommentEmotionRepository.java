@@ -6,9 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CommentEmotionRepository extends JpaRepository<CommentEmotion , Integer> {
+
+    Optional<CommentEmotion> findByUser_UserIdAndComment_CommentId(Integer userId, Integer commentId);
+    void deleteByUser_UserIdAndComment_CommentId(Integer userId, Integer commentId);
 
     @Query("SELECT DATE(c.createdAt) as date, " +
             "COUNT(c) as commentCount FROM CommentEmotion c " +

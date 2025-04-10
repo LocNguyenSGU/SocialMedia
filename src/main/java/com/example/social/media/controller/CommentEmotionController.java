@@ -23,12 +23,10 @@ public class CommentEmotionController {
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public DataResponse<CommentEmotionResponseDTO> create(@RequestBody
+    public ResponseEntity<?> create(@RequestBody
                                  CommentEmotionCreateRequest request){
-
-        return DataResponse.<CommentEmotionResponseDTO>builder()
-                .data(service.create(request))
-                .build();
+        service.toggleLike(request);
+        return ResponseEntity.ok().build();
     }
 
     //statistics

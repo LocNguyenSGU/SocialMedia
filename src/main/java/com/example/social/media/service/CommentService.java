@@ -21,6 +21,7 @@ public interface CommentService {
     public CommentResponseDTO getById(int id);
     public List<CommentResponseDTO> getCommentCloser(Integer parentId , Integer postId);
     public List<CommentResponseDTO> getCommentByPostId(Integer postId);
+    public boolean checkCommentEmotionByUserIdAndCommentId(Integer userId, Integer commentId);
 
     List<Map<String, Object>> getCommentsStatisticsPerDay();
     List<Map<String, Object>> getCommentsStatisticsPerMonth();

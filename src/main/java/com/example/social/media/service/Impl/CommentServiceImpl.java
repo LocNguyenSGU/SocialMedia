@@ -1,9 +1,6 @@
 package com.example.social.media.service.Impl;
 
-import com.example.social.media.entity.Comment;
-import com.example.social.media.entity.CommentCloser;
-import com.example.social.media.entity.Post;
-import com.example.social.media.entity.User;
+import com.example.social.media.entity.*;
 import com.example.social.media.enumm.PostVisibilityEnum;
 import com.example.social.media.exception.AppException;
 import com.example.social.media.exception.ErrorCode;
@@ -13,10 +10,7 @@ import com.example.social.media.payload.request.CommentDTO.CommentCreateRequest;
 import com.example.social.media.payload.request.CommentDTO.CommentUpdateRequest;
 import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
-import com.example.social.media.repository.CommentCloserRepository;
-import com.example.social.media.repository.CommentRepository;
-import com.example.social.media.repository.PostRepository;
-import com.example.social.media.repository.UserRepository;
+import com.example.social.media.repository.*;
 import com.example.social.media.service.CommentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE , makeFinal = true)
@@ -45,6 +36,7 @@ public class CommentServiceImpl implements CommentService {
     UserRepository userRepository;
     CommentCloserRepository commentCloserRepository;
     PostRepository postRepository;
+    private final CommentEmotionRepository commentEmotionRepository;
 
     @Override
     public CommentResponseDTO create(CommentCreateRequest request) {
@@ -164,6 +156,14 @@ public class CommentServiceImpl implements CommentService {
             }
         }
         return list;
+    }
+
+    @Override
+    public boolean checkCommentEmotionByUserIdAndCommentId(Integer userId, Integer commentId) {
+        Optional<CommentEmotion> existingEmotion = commentEmotionRepository
+                .findByUser_UserIdAndComment_CommentId(userId , commentId);
+
+        return existingEmotion.isPresent();
     }
 
     //Statistics

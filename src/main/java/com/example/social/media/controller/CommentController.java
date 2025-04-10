@@ -121,6 +121,15 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
+    @GetMapping("/checkExistedEmotion/{useId}/{commentId}")
+    public DataResponse<Boolean> checkExistedEmotion(@PathVariable("useId") Integer useId,
+                                                     @PathVariable("commentId" ) Integer commentId ){
+
+        return DataResponse.<Boolean>builder()
+                .data(service.checkCommentEmotionByUserIdAndCommentId(useId , commentId))
+                .build();
+    }
+
 
     //statistics
     @GetMapping("/statistics/daily")
