@@ -388,4 +388,34 @@ public class PostServiceImpl implements PostService {
         result.put("posts", posts);
         return result;
     }
+
+    @Override
+    public List<Object[]> getPostCountByVisibility() {
+        return postRepository.countPostsByVisibility();
+    }
+
+    @Override
+    public List<Object[]> getPostCountByUser() {
+        return postRepository.countPostsByUser();
+    }
+
+    @Override
+    public List<Object[]> getTopUsersByPostCount(int limit) {
+        return postRepository.topUsersByPostCount(PageRequest.of(0, limit));
+    }
+
+    @Override
+    public Map<String, Long> getTotalStatsBetween(LocalDate start, LocalDate end) {
+        LocalDateTime from = start.atStartOfDay();
+        LocalDateTime to = end.plusDays(1).atStartOfDay();
+
+        Object[] result = postRepository.sumReactionsBetweenDates(from, to);
+
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("totalEmotions", ((Number) result[0]).longValue());
+        stats.put("totalComments", ((Number) result[1]).longValue());
+        stats.put("totalShares", ((Number) result[2]).longValue());
+
+        return stats;
+    }
 }
