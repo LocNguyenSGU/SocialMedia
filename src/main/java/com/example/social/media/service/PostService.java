@@ -38,6 +38,7 @@ public interface PostService {
     List<TopPostResponseDTO> getTop5PostsByTimeFrame(String timeFrame, Integer week, Integer month, Integer year);
     Page<PostResponseDTO> findByVisibility(ListRequest listRequest);
     List<FakeNews> checkFakeNews(int postId) throws Exception;
+    List<FakeNews> checkFakeNewsByContent(String content) throws Exception;
     Map<String, Object> getPostStats(LocalDate startDate, LocalDate endDate);
     List<Object[]> getPostCountByVisibility();
     List<Object[]> getPostCountByUser();

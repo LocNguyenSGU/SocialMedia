@@ -363,6 +363,11 @@ public class PostServiceImpl implements PostService {
         return openAIService.moderatePostContent(postResponseDTO.getContent());
     }
 
+    @Override
+    public List<FakeNews> checkFakeNewsByContent(String content) throws Exception {
+        return openAIService.moderatePostContent(content);
+    }
+
     private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {
         List<Map<String, Object>> dataList = new ArrayList<>();
         for (Object[] row : results) {
