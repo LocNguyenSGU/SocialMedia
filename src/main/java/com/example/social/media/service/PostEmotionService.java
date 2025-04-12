@@ -17,4 +17,6 @@ public interface PostEmotionService {
     void deletePostEmotion(PostEmotionDeleteRequest postEmotionDeleteRequest);
 
     // Kiểm tra sự tồn tại của PostEmotion theo postId và userId
+
+    boolean checkExistByPostIdAndUserId(int postId, int userId);
 }
