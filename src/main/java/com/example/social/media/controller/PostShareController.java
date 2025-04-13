@@ -3,8 +3,11 @@ package com.example.social.media.controller;
 import com.example.social.media.entity.Post;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.common.PageResponse;
+import com.example.social.media.payload.request.NotificationDTO.NotificationRequestDTO;
 import com.example.social.media.payload.request.PostShareDTO.PostShareCreateDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
+import com.example.social.media.service.NotificationService;
+import com.example.social.media.service.PostService;
 import com.example.social.media.service.PostShareService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -26,11 +29,21 @@ import java.util.Map;
 @Slf4j
 public class PostShareController {
     PostShareService postShareService;
+    PostService postService;
+    NotificationService notificationService;
 
     @PostMapping()
     @PreAuthorize("hasRole('USER')")
     public DataResponse<PostResponseDTO> getPostsByUserId(@Valid @RequestBody PostShareCreateDTO postShareCreateDTO) {
         PostResponseDTO postResponseDTO = postShareService.createPostShare(postShareCreateDTO);
+        Post post = postService.getPostById(postShareCreateDTO.getPostId());
+        NotificationRequestDTO notificationRequestDTO = new NotificationRequestDTO();
+        notificationRequestDTO.setReceiver(post.getUser().getUserId());
+        notificationRequestDTO.setSenderId(postShareCreateDTO.getUserId());
+        notificationRequestDTO.setPostId(postShareCreateDTO.getPostId());
+        notificationRequestDTO.setContent("Người dùng " + "đã chia sẽ bài viết của bạn");
+        notificationRequestDTO.setType("comment");
+        notificationService.createNotification(notificationRequestDTO);
         return DataResponse.<PostResponseDTO>builder()
                 .message("share bai post")
                 .data(postResponseDTO)

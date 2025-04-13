@@ -1,12 +1,15 @@
 package com.example.social.media.service.Impl;
 
 import com.example.social.media.entity.Post;
+import com.example.social.media.entity.PostMedia;
 import com.example.social.media.entity.PostShare;
 import com.example.social.media.enumm.PostVisibilityEnum;
 import com.example.social.media.mapper.PostMapper;
 import com.example.social.media.mapper.PostShareMapper;
 import com.example.social.media.payload.request.PostShareDTO.PostShareCreateDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
+import com.example.social.media.payload.response.PostMediaDTO.PostMediaResponseDTO;
+import com.example.social.media.repository.PostMediaRepository;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.PostShareRepository;
 import com.example.social.media.service.PostService;
@@ -30,6 +33,7 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class PostShareServiceImpl implements PostShareService {
+    private final PostMediaRepository postMediaRepository;
     PostShareRepository postShareRepository;
     PostShareMapper postShareMapper;
     PostService postService;
@@ -70,24 +74,41 @@ public class PostShareServiceImpl implements PostShareService {
         newPostForUserShare.setPostEmotionList(new ArrayList<>());
         newPostForUserShare.setCreatedAt(LocalDateTime.now()); // Fix lỗi missing createdAt
 
+
+        List<PostMedia> postMediaListNew = new ArrayList<>();
+
         log.info("Bài viết mới cho người share: {}", newPostForUserShare);
 
         // 4. Lưu bài viết mới vào DB
         Post postCreatedForUserShare = postService.createPost(newPostForUserShare);
         log.info("Bài viết đã lưu vào DB: {}", postCreatedForUserShare);
 
+        // 4.5 Lưu them anh cua bài viết mới vào DB
+        Post old = postService.getPostById(postShareCreateDTO.getPostId());
+        List<PostMedia> postMediaList = old.getPostMediaList();
+        for(PostMedia p: postMediaList) {
+            PostMedia postMedia = new PostMedia();
+            postMedia.setMediaType(p.getMediaType());
+            postMedia.setMediaUrl(p.getMediaUrl());
+            postMedia.setCreatedAt(p.getCreatedAt());
+            postMedia.setOrder(p.getOrder());
+            postMedia.setPost(postCreatedForUserShare);
+            postMediaRepository.save(postMedia);
+        }
+
         // 5. Gán bài viết vừa tạo vào postShare
         postShare.setPost(postCreatedForUserShare);
         postShare.setOriginalPost(postService.getPostById(postShareCreateDTO.getPostId()));
         postShare.setSharedAt(LocalDateTime.now());
-        log.info("PostShare cập nhật trước khi lưu DB: {}", postShare);
 
         // 6. Lưu postShare vào DB
         PostShare postShareCreated = postShareRepository.save(postShare);
-        log.info("PostShare đã lưu vào DB: {}", postShareCreated);
 
         // 7. Trả về response
-        PostResponseDTO response = postMapper.toPostResponseDTO(postShareCreated.getPost());
+
+        Post resultPostShareNew = postService.getPostById(postShareCreated.getPost().getPostId());
+        log.info("Trước khi map: postMediaList = {}", resultPostShareNew.getPostMediaList());
+        PostResponseDTO response = postMapper.toPostResponseDTO(resultPostShareNew);
         log.info("Response trả về: {}", response);
 
         return response;
