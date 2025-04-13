@@ -133,13 +133,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseDTO getPostResponseDTOById(int postId) {
-        List<CommentResponseDTO> comments = commentService.getCommentByPostId(postId);
-        log.info("CommentResponse DTO: {}", comments);
         Post post = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
-        var postResponseDTO = postMapper.toPostResponseDTO(post);
-
-        postResponseDTO.setComments(comments);
-        return postResponseDTO;
+        return postMapper.toPostResponseDTO(post);
     }
 
     @Override
@@ -148,6 +143,10 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
         Page<Post> postPage = postRepository.findByUser_UserId(pageable, userId);
         Page<PostResponseDTO> postResponseDTOS = postPage.map(postMapper::toPostResponseDTO);
+        postResponseDTOS.forEach(postDTO -> {
+            List<CommentResponseDTO> comments = commentService.getCommentByPostId(postDTO.getPostId());
+            postDTO.setComments(comments);
+        });
         return new PageResponse<>(postResponseDTOS);
     }
 
