@@ -133,8 +133,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseDTO getPostResponseDTOById(int postId) {
+        List<CommentResponseDTO> comments = commentService.getCommentByPostId(postId);
+        log.info("CommentResponse DTO: {}", comments);
         Post post = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
-        return postMapper.toPostResponseDTO(post);
+        var postResponseDTO = postMapper.toPostResponseDTO(post);
+
+        postResponseDTO.setComments(comments);
+        return postResponseDTO;
     }
 
     @Override

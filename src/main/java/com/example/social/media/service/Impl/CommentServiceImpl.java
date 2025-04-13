@@ -48,6 +48,8 @@ public class CommentServiceImpl implements CommentService {
         comment.setPost(post);
         comment.setUser(user);
         comment = repository.save(comment);
+        post.setNumberComment(post.getNumberComment() + 1);
+        postRepository.save(post);
         return mapper.toCommentResponseDto(comment);
     }
 
@@ -103,6 +105,9 @@ public class CommentServiceImpl implements CommentService {
         newComment = repository.save(newComment); // Lưu comment
         commentCloserRepository.save(directRelation); // Lưu quan hệ trực tiếp
         commentCloserRepository.saveAll(newRelations); // Lưu các quan hệ tổ tiên
+
+        post.setNumberComment(post.getNumberComment() + 1);
+        postRepository.save(post);
 
         return mapper.toCommentResponseDto(newComment);
     }
