@@ -67,7 +67,7 @@ public class NotificationController {
             @PathVariable int idReceiver
     ){
         return DataResponse.<Void>builder()
-                .data(notificationService.updateIsReadNotifyById(idReceiver))
+                .data(notificationService.updateIsReadAllNotifyByIdUser(idReceiver))
                 .message("danh dau da doc tat ca thong bao")
                 .build();
     }

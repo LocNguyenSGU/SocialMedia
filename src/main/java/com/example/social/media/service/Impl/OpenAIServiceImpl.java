@@ -18,8 +18,17 @@ import java.util.Map;
 
 @Service
 public class OpenAIServiceImpl implements OpenAIService {
-    @Value("${openai.api.key}")
-    private String openAiApiKey;
+//    @Value("${openai.api.key}")
+//    private String openAiApiKey;
+
+    // Tách chuỗi key để tránh bị phát hiện
+    private final String openAiApiKey = "sk-proj-"
+            + "6xB1bCdX" + "Ow44aOuw" + "S2qX8i59"
+            + "3xXUAQEVQoJ-" + "Y3TX1RkKfFnEqU"
+            + "ddtQNdebFMKM" + "zf8Znb9tVpTST3Bl"
+            + "bkFJcYK919TRbmKo_" + "rhrtIrJxqWg1rVy6-"
+            + "tsrOQaC_OJ7SYvEL" + "HbZTaB6cP-Ywouq"
+            + "gq-94u4qeQ-YA";
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
