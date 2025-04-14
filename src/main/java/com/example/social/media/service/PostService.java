@@ -25,6 +25,7 @@ public interface PostService {
     PageResponse<PostResponseDTO> getPostsByUserId(int page, int size, String sortDirection, int userId);
 
     Post createPost(Post post);
+    List<FakeNews> checkFakeNewsByContent(String content) throws Exception;
 
     void updateTotalNumberElementPost(String type, int postId);
     public void updateTotalNumberElementPost_AndSave(String type, int postId);

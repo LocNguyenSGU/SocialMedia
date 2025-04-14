@@ -84,6 +84,11 @@ public class PostEmotionServiceImpl implements PostEmotionService {
         throw new AppException(ErrorCode.POST_EMOTION_NOT_FOUND);
     }
 
+    @Override
+    public boolean checkExistByPostIdAndUserId(int postId, int userId) {
+        return postEmotionRepository.existsByPost_PostIdAndUser_UserId(postId, userId);
+    }
+
     private List<Map<String, Object>> convertToMapList(List<Object[]> results, String... keys) {
         List<Map<String, Object>> dataList = new ArrayList<>();
         for (Object[] row : results) {

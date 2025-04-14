@@ -1,12 +1,14 @@
 package com.example.social.media.service.Impl;
 
 import com.example.social.media.entity.Post;
+import com.example.social.media.entity.PostMedia;
 import com.example.social.media.entity.PostShare;
 import com.example.social.media.enumm.PostVisibilityEnum;
 import com.example.social.media.mapper.PostMapper;
 import com.example.social.media.mapper.PostShareMapper;
 import com.example.social.media.payload.request.PostShareDTO.PostShareCreateDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
+import com.example.social.media.repository.PostMediaRepository;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.PostShareRepository;
 import com.example.social.media.service.PostService;
@@ -33,6 +35,7 @@ public class PostShareServiceImpl implements PostShareService {
     PostShareRepository postShareRepository;
     PostShareMapper postShareMapper;
     PostService postService;
+    PostMediaRepository postMediaRepository;
     PostMapper postMapper;
 
     @Override
@@ -71,10 +74,24 @@ public class PostShareServiceImpl implements PostShareService {
         newPostForUserShare.setCreatedAt(LocalDateTime.now()); // Fix lỗi missing createdAt
 
         log.info("Bài viết mới cho người share: {}", newPostForUserShare);
+        List<PostMedia> postMediaListNew = new ArrayList<>();
 
         // 4. Lưu bài viết mới vào DB
         Post postCreatedForUserShare = postService.createPost(newPostForUserShare);
         log.info("Bài viết đã lưu vào DB: {}", postCreatedForUserShare);
+
+        // 4.5 Lưu them anh cua bài viết mới vào DB
+        Post old = postService.getPostById(postShareCreateDTO.getPostId());
+        List<PostMedia> postMediaList = old.getPostMediaList();
+        for(PostMedia p: postMediaList) {
+            PostMedia postMedia = new PostMedia();
+            postMedia.setMediaType(p.getMediaType());
+            postMedia.setMediaUrl(p.getMediaUrl());
+            postMedia.setCreatedAt(p.getCreatedAt());
+            postMedia.setOrder(p.getOrder());
+            postMedia.setPost(postCreatedForUserShare);
+            postMediaRepository.save(postMedia);
+        }
 
         // 5. Gán bài viết vừa tạo vào postShare
         postShare.setPost(postCreatedForUserShare);
@@ -87,10 +104,10 @@ public class PostShareServiceImpl implements PostShareService {
         log.info("PostShare đã lưu vào DB: {}", postShareCreated);
 
         // 7. Trả về response
-        PostResponseDTO response = postMapper.toPostResponseDTO(postShareCreated.getPost());
-        log.info("Response trả về: {}", response);
+        Post resultPostShareNew = postService.getPostById(postShareCreated.getPost().getPostId());
+        log.info("Trước khi map: postMediaList = {}", resultPostShareNew.getPostMediaList());
 
-        return response;
+        return postMapper.toPostResponseDTO(resultPostShareNew);
     }
 
     //Statistics

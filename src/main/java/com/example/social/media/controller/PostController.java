@@ -4,6 +4,7 @@ import com.example.social.media.entity.Post;
 import com.example.social.media.payload.common.DataResponse;
 import com.example.social.media.payload.common.FakeNews;
 import com.example.social.media.payload.common.PageResponse;
+import com.example.social.media.payload.request.PostDTO.PostContentRequestDTO;
 import com.example.social.media.payload.request.PostDTO.PostCreateRequest;
 import com.example.social.media.payload.request.PostDTO.PostUpdateRequestDTO;
 import com.example.social.media.payload.request.SearchRequest.ListRequest;
@@ -44,7 +45,7 @@ public class PostController {
     OpenAIService openAIService;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public DataResponse<PostResponseDTO> create(
             @RequestPart(name = "postCreateRequest") String postCreateRequestJson,
             @RequestPart(value = "files", required = false) MultipartFile[] files) throws IOException {
@@ -186,5 +187,9 @@ public class PostController {
 
         Map<String, Object> stats = postService.getPostStats(startDate, endDate);
         return ResponseEntity.ok(stats);
+    }
+    @PostMapping("/check-fake-news-content")
+    public ResponseEntity<DataResponse<List<FakeNews>>> checkFakeNewsByContent(@Valid @RequestBody PostContentRequestDTO postContentRequestDTO) throws Exception {
+        return ResponseEntity.ok(new DataResponse<>(200, postService.checkFakeNewsByContent(postContentRequestDTO.getContent()), "Kiem duyet noi dung bai post"));
     }
 }

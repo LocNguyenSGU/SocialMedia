@@ -380,6 +380,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public List<FakeNews> checkFakeNewsByContent(String content) throws Exception {
+        return openAIService.moderatePostContent(content);
+    }
+
+    @Override
     public Map<String, Object> getPostStats(LocalDate startDate, LocalDate endDate) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay(); // inclusive

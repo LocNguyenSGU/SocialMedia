@@ -93,4 +93,10 @@ public class PostEmotionController {
         postEmotionService.deletePostEmotion(postEmotionDeleteRequest);
         return ResponseEntity.ok(new DataResponse("PostEmotion đã được xóa thành công!", "PostEmotion đã được xóa thành công!"));
     }
+
+
+    public ResponseEntity<?> checkExistByPostIdAndUserId(@PathVariable int postId, @PathVariable int userId) {
+        Boolean exists = postEmotionService.checkExistByPostIdAndUserId(postId, userId);
+        return ResponseEntity.ok(new DataResponse<>(exists, "Kiểm tra đã like hay chưa"));
+    }
 }
