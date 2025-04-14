@@ -33,6 +33,7 @@ public class AdminController {
     RoleMapper mapper;
     private final RoleMapper roleMapper;
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/users")
     public List<UserRole> getAllUsers() {
         var users = userRepository.findAll();
@@ -40,6 +41,7 @@ public class AdminController {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/roles")
     public DataResponse<RoleDTO> createRole(@RequestBody RoleDTO response){
 
@@ -54,6 +56,7 @@ public class AdminController {
                 .build();
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/roles")
     public DataResponse<List<RoleDTO>> roleList(){
         return DataResponse.<List<RoleDTO>>builder()
@@ -61,6 +64,7 @@ public class AdminController {
                 .build();
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/assign-roles/{userId}")
     public ResponseEntity<UserRole> assignRoles(@PathVariable Integer userId,
                                               @RequestBody Set<Role> roles) {
