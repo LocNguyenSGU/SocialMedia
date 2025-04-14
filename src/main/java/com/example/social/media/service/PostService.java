@@ -40,4 +40,9 @@ public interface PostService {
     Page<PostResponseDTO> findByVisibility(ListRequest listRequest);
     List<FakeNews> checkFakeNews(int postId) throws Exception;
     Map<String, Object> getPostStats(LocalDate startDate, LocalDate endDate);
+
+    List<Object[]> getPostCountByVisibility();
+    List<Object[]> getPostCountByUser();
+    List<Object[]> getTopUsersByPostCount(int limit);
+    Map<String, Long> getTotalStatsBetween(LocalDate start, LocalDate end);
 }

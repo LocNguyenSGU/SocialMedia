@@ -58,6 +58,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> , JpaSpecif
 
     Page<Post> findByContentContains(String content , Pageable pageable);
     List<Post> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+    @Query("SELECT p.visibility, COUNT(p) FROM Post p GROUP BY p.visibility")
+    List<Object[]> countPostsByVisibility();
 
+    @Query("SELECT p.user.userName, COUNT(p) FROM Post p GROUP BY p.user.userName")
+    List<Object[]> countPostsByUser();
+
+    @Query("SELECT p.user.userName, COUNT(p) as total FROM Post p GROUP BY p.user.userName ORDER BY total DESC")
+    List<Object[]> topUsersByPostCount(Pageable pageable);
+
+    @Query("SELECT SUM(p.numberEmotion), SUM(p.numberComment), SUM(p.numberShare) FROM Post p WHERE p.createdAt BETWEEN :start AND :end")
+    Object[] sumReactionsBetweenDates(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

@@ -192,4 +192,27 @@ public class PostController {
     public ResponseEntity<DataResponse<List<FakeNews>>> checkFakeNewsByContent(@Valid @RequestBody PostContentRequestDTO postContentRequestDTO) throws Exception {
         return ResponseEntity.ok(new DataResponse<>(200, postService.checkFakeNewsByContent(postContentRequestDTO.getContent()), "Kiem duyet noi dung bai post"));
     }
+
+    @GetMapping("/visibility")
+    public ResponseEntity<?> getPostCountByVisibility() {
+        return ResponseEntity.ok(postService.getPostCountByVisibility());
+    }
+
+    @GetMapping("/by-user")
+    public ResponseEntity<?> getPostCountByUser() {
+        return ResponseEntity.ok(postService.getPostCountByUser());
+    }
+
+    @GetMapping("/top-users")
+    public ResponseEntity<?> getTopUsers(@RequestParam(defaultValue = "5") int limit) {
+        return ResponseEntity.ok(postService.getTopUsersByPostCount(limit));
+    }
+
+    @GetMapping("/reactions")
+    public ResponseEntity<?> getReactionsBetween(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+    ) {
+        return ResponseEntity.ok(postService.getTotalStatsBetween(start, end));
+    }
 }

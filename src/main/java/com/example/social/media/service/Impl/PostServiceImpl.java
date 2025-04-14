@@ -18,18 +18,13 @@ import com.example.social.media.payload.request.SearchRequest.ListRequest;
 import com.example.social.media.payload.response.CommentDTO.CommentResponseDTO;
 import com.example.social.media.payload.response.PostDTO.PostResponseDTO;
 import com.example.social.media.payload.response.PostDTO.TopPostResponseDTO;
-import com.example.social.media.repository.PostMediaRepository;
 import com.example.social.media.repository.PostRepository;
 import com.example.social.media.repository.UserRepository;
 import com.example.social.media.service.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +43,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.time.temporal.WeekFields;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -396,5 +390,35 @@ public class PostServiceImpl implements PostService {
         result.put("count", count);
         result.put("posts", posts);
         return result;
+    }
+
+    @Override
+    public List<Object[]> getPostCountByVisibility() {
+        return postRepository.countPostsByVisibility();
+    }
+
+    @Override
+    public List<Object[]> getPostCountByUser() {
+        return postRepository.countPostsByUser();
+    }
+
+    @Override
+    public List<Object[]> getTopUsersByPostCount(int limit) {
+        return postRepository.topUsersByPostCount(PageRequest.of(0, limit));
+    }
+
+    @Override
+    public Map<String, Long> getTotalStatsBetween(LocalDate start, LocalDate end) {
+        LocalDateTime from = start.atStartOfDay();
+        LocalDateTime to = end.plusDays(1).atStartOfDay();
+
+        Object[] result = postRepository.sumReactionsBetweenDates(from, to);
+
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("totalEmotions", ((Number) result[0]).longValue());
+        stats.put("totalComments", ((Number) result[1]).longValue());
+        stats.put("totalShares", ((Number) result[2]).longValue());
+
+        return stats;
     }
 }
